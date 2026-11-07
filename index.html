@@ -216,7 +216,8 @@ const ENDPOINTS = Object.freeze({
   events: DATA_BASE+'events.json',
   gyms: DATA_BASE+'gym_events.json',
   conventions: DATA_BASE+'conventions.json',
-  rexam: DATA_BASE+'rexam_events.json'
+  rexam: DATA_BASE+'rexam_events.json',
+  cruise: DATA_BASE+'cruise_events.json'
 });
 const SOURCE_LINKS = [
   {name:'高松の天気予報',icon:'☀️',url:'https://www.jma.go.jp/bosai/forecast/#area_type=offices&area_code=370000',quick:true},
@@ -313,7 +314,7 @@ function selectableVenue(v){let n=normalized(v);return !!n&&!ABSTRACT.test(n)&&!
 function venueLabel(v){return String(v||'').replace(/[\s\u3000]*(?:[、,，・／/]?[\s\u3000]*)ほか(?:[\s\u3000]*\d+か所)?[\s\u3000]*$/u,'').trim()}
 const priority=new Map([
   ['あなぶきアリーナ香川',10],['サンポートホール高松',20],['かがわ国際会議場',30],
-  ['JRホテルクレメント高松',40],['レクザムホール',50],['亀水運動センター',110],
+  ['JRホテルクレメント高松',40],['レクザムホール',50],['高松港',55],['亀水運動センター',110],
   ['ホテルパールガーデン',120],['高松市総合体育館',130],['東部運動公園',170],
   ['牟礼総合体育館',210],['牟礼中央公園運動センター',240],['西部運動センター',380],
   ['かわなべスポーツセンター',480],['仏生山公園体育館',570],['国分寺橘ノ丘総合運動公園',650],
@@ -330,8 +331,8 @@ function venueIcon(v){let s=String(v||'');if(/ホテル|旅館|宿泊|クレメ�
 
 
 
-const TYPE={events:'venue',gyms:'gym',conventions:'convention',rexam:'rexam'};
-const MAX={events:350,gyms:800,conventions:700,rexam:500};
+const TYPE={events:'venue',gyms:'gym',conventions:'convention',rexam:'rexam',cruise:'cruise'};
+const MAX={events:350,gyms:800,conventions:700,rexam:500,cruise:120};
 function validEvent(e){return !!(e&&typeof e.id==='string'&&e.id.length<=130&&typeof e.title==='string'&&e.title.length>0&&e.title.length<=150&&typeof e.venue==='string'&&e.venue.length<=200&&/^20\d{2}-\d{2}-\d{2}$/.test(e.date||'')&&(!e.endDate||/^20\d{2}-\d{2}-\d{2}$/.test(e.endDate)))}
 async function loadOfficialEvents(onUpdate=()=>{}) {
   const data={events:[],errors:[],sources:[],updatedAt:null};
@@ -372,6 +373,7 @@ function scaleEstimate(e){
   const labels={large:'大規模',medium:'中規模',small:'小規模',limited:'関係者向け',unknown:'規模不明'};
   if(forced&&forced!=='auto'&&labels[forced])return{key:forced,label:labels[forced],reason:'本人が指定した参考分類'};
   if(e.sourceType==='gym')return{key:'unknown',label:'規模不明',reason:'スポーツ施設の月間予定に人数がないため未推定'};
+  if(e.sourceType==='cruise')return{key:'unknown',label:'規模不明',reason:'乗客定員と実際の下船人数は異なるため規模を推定しません'};
   if(Number.isInteger(e.participants)&&e.participants>=0){let n=e.participants;let k=n>=1000?'large':n>=300?'medium':'small';return{key:k,label:labels[k],reason:'公開された参加予定人数による参考分類'};}
   const title=String(e.title||'').normalize('NFKC').toLowerCase(), note=String(e.note||'').normalize('NFKC').toLowerCase();
   if(/関係者のみ|一般来場不可|関係者限定|招待者のみ|関係者対象/.test(note))return{key:'limited',label:labels.limited,reason:'一般来場が制限されるイベント'};
@@ -431,12 +433,13 @@ function renderSources(){
 const tierRank={large:0,medium:1,small:2,unknown:3,limited:4};
 function eventCard(e,{compact=false}={}){
   const size=scaleEstimate(e),safe=safeURL(e.url),day=esc(e.date.replace(/-/g,'/')+((e.endDate&&e.endDate!==e.date)?' ～ '+e.endDate.replace(/-/g,'/') :''));
-  const start=e.startAt?`<span class="time-chip">開始 ${esc(shortTime(e.startAt))}</span>`:'<span class="time-muted">開始時刻未公表</span>';
-  const end=e.endAt?`<span class="time-chip">終了 ${esc(shortTime(e.endAt))}</span>`:'<span class="time-muted">終了時刻未公表</span>';
+  const cruise=e.sourceType==='cruise';
+  const start=e.startAt?`<span class="time-chip">${cruise?'入港':'開始'} ${esc(shortTime(e.startAt))}</span>`:`<span class="time-muted">${cruise?'入港':'開始'}時刻未公表</span>`;
+  const end=e.endAt?`<span class="time-chip">${cruise?'出港':'終了'} ${esc(shortTime(e.endAt))}</span>`:`<span class="time-muted">${cruise?'出港':'終了'}時刻未公表</span>`;
   const venueDetails=e.venueArea?`（${esc(e.venueArea)}）`:'';
-  const timeWatch=e.endAt&&Number.isFinite(Date.parse(e.endAt))&&e.date>=jstDateKey()?`<p class="event-watch">終了前後30分：${esc(shortTime(Date.parse(e.endAt)-1800000))}〜${esc(shortTime(Date.parse(e.endAt)+1800000))}（参考）</p>`:'';
+  const timeWatch=!cruise&&e.endAt&&Number.isFinite(Date.parse(e.endAt))&&e.date>=jstDateKey()?`<p class="event-watch">終了前後30分：${esc(shortTime(Date.parse(e.endAt)-1800000))}〜${esc(shortTime(Date.parse(e.endAt)+1800000))}（参考）</p>`:'';
   const extras=compact?'':`<div class="event-detail">${e.note?`<details><summary>出典・注意事項</summary><p>${esc(e.note)}</p></details>`:''}<div class="event-actions">${safe?`<a class="subbutton" href="${esc(safe)}" rel="noopener noreferrer" target="_blank">公式詳細</a>`:''}<button class="subbutton" data-edit-event="${esc(e.id)}">${e.sourceType==='manual'?'編集':'この端末で補正'}</button></div></div>`;
-  return `<article class="event-card" data-tier="${esc(size.key)}"><div class="event-lead"><span class="size-mark ${esc(size.key)}" title="${esc(size.reason)}">${esc(size.label)}</span><strong class="event-date">${day}</strong></div><div class="event-venue"><span aria-hidden="true">${venueIcon(e.venue)}</span> ${esc(e.venue)}${venueDetails}</div><div class="event-times">${e.doorAt?`<span class="time-chip">開場 ${esc(shortTime(e.doorAt))}</span>`:''}${start}${end}</div><h3>${esc((e.sourceType==='gym'?e.title.replace(/^\([月火水木金土日]\)\s*/,''):e.title))}</h3>${e.wasEdited?'<span class="tiny-tag">本人補正</span>':''}${e.sourceType==='manual'?'<span class="tiny-tag">手動登録</span>':''}${Number.isInteger(e.participants)?`<p class="event-attendance">参加予定 ${e.participants.toLocaleString('ja-JP')}人</p>`:''}${timeWatch}${extras}</article>`;
+  return `<article class="event-card" data-tier="${esc(size.key)}"><div class="event-lead"><span class="size-mark ${esc(size.key)}" title="${esc(size.reason)}">${esc(size.label)}</span><strong class="event-date">${day}</strong></div><div class="event-venue"><span aria-hidden="true">${venueIcon(e.venue)}</span> ${esc(e.venue)}${venueDetails}</div><div class="event-times">${e.doorAt?`<span class="time-chip">開場 ${esc(shortTime(e.doorAt))}</span>`:''}${start}${end}</div><h3>${esc((e.sourceType==='gym'?e.title.replace(/^\([月火水木金土日]\)\s*/,''):e.title))}</h3>${e.wasEdited?'<span class="tiny-tag">本人補正</span>':''}${e.sourceType==='manual'?'<span class="tiny-tag">手動登録</span>':''}${Number.isInteger(e.participants)?`<p class="event-attendance">参加予定 ${e.participants.toLocaleString('ja-JP')}人</p>`:''}${cruise&&Number.isInteger(e.passengerCapacity)?`<p class="event-attendance">乗客定員 ${e.passengerCapacity.toLocaleString('ja-JP')}人（実乗船人数とは異なります）</p>`:''}${timeWatch}${extras}</article>`;
 }
 function renderEventList(rows,{range='week',venue='all',tier='all',limit=VENUE_LIMIT}={}){
   const select=$('venueFilter'),available=venueOptions(rows);const current=venue==='all'||available.includes(venue)?venue:'all';
