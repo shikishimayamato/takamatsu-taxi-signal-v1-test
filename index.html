@@ -113,8 +113,8 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
 </div></header>
 <main class="page">
   <section class="safety" aria-label="安全上の注意"><strong>運転中は操作禁止</strong><details><summary>注意事項</summary><p>運転を停止した安全な場所で操作してください。予報・交通・催事情報は参考情報です。駐停車や営業区域の規制を遵守し、最新情報を公式サイトで確認してください。</p></details></section>
-  <section class="weather-strip" aria-label="気象庁の天気と強雨情報">
-    <a class="weather-summary" href="https://www.jma.go.jp/bosai/forecast/#area_type=offices&area_code=370000" target="_blank" rel="noopener noreferrer" title="香川県の天気予報"><span id="wxEmoji" class="weather-emoji" aria-label="天気取得中">—</span><strong id="wxMain">取得中…</strong></a>
+  <section class="weather-strip" aria-label="気象庁の天気・強雨情報。天気をタップするとYahoo!天気が開きます">
+    <a class="weather-summary" href="https://weather.yahoo.co.jp/weather/jp/37/7200/37201.html" target="_blank" rel="noopener noreferrer" title="Yahoo!天気（高松市）を開く。表示中の予報値は気象庁データです" aria-label="気象庁の予報値を表示。Yahoo!天気（高松市）で詳細を見る"><span id="wxEmoji" class="weather-emoji" aria-label="天気取得中">—</span><strong id="wxMain">取得中…</strong></a>
     <div class="rain-status" id="rainBox"><span id="rainAlert" class="rain-label">強雨確認中</span><details class="rain-details"><summary aria-label="強雨の詳細">▼</summary><div class="rain-popup"><div class="rain-popup-head"><strong>強雨の詳細</strong><button type="button" id="rainCloseTop" aria-label="強雨の詳細を閉じる">← 戻る</button></div><span id="rainDetail">気象庁の雨雲情報を確認中です。</span><a target="_blank" rel="noopener noreferrer" href="https://www.jma.go.jp/bosai/nowc/#zoom:9/lat:34.34/lon:134.05/colordepth:normal/elements:hrpns&slmcs">雨雲の動き</a><span>高松中心部と約6km圏の参考判定です。</span></div></details></div>
     <button id="refreshWeather" class="refresh-weather" type="button">更新</button>
   </section>
@@ -220,7 +220,7 @@ const ENDPOINTS = Object.freeze({
   cruise: DATA_BASE+'cruise_events.json'
 });
 const SOURCE_LINKS = [
-  {name:'高松の天気予報',icon:'☀️',url:'https://www.jma.go.jp/bosai/forecast/#area_type=offices&area_code=370000',quick:true},
+  {name:'Yahoo!天気（高松市）',icon:'☀️',url:'https://weather.yahoo.co.jp/weather/jp/37/7200/37201.html',quick:true},
   {name:'気象庁・雨雲の動き',icon:'🌧️',url:'https://www.jma.go.jp/bosai/nowc/#zoom:9/lat:34.34/lon:134.05/colordepth:normal/elements:hrpns&slmcs',quick:true},
   {name:'香川県 鉄道運行情報',icon:'🚆',url:'https://transit.yahoo.co.jp/diainfo/pref/37',quick:true},
   {name:'ことでん 運行情報',icon:'🚆',url:'https://www.kotoden.co.jp/publichtm/i-mode/unkou/densya.htm'},
