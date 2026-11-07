@@ -55,6 +55,40 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
 .zone-dialog .zone-choices button[aria-pressed="true"]{border:2px solid var(--accent);background:var(--surface2)}
 .zone-dialog .zone-dialog-note{font-size:13px;color:var(--muted);margin:8px 0}
 .zone-dialog .zone-back-bottom{width:100%}
+
+/* v1.0: 全選択欄を、戻る/閉じる付きの同じ選択UIへ統一する */
+#evZone[hidden],#venueFilter[hidden],#tierFilter[hidden]{display:none!important;position:absolute!important;visibility:hidden!important;pointer-events:none!important}
+.picker-field{min-width:0;display:flex;flex-direction:column;gap:4px}
+.picker-field>label{display:block!important;margin:0 0 3px!important;font-size:15px;font-weight:800;line-height:1.35}
+.picker-field .picker-trigger,.manual-register #memoForm .picker-trigger{
+ display:flex;align-items:center;justify-content:space-between;gap:8px;
+ width:100%;min-width:0;text-align:left;background:var(--surface);color:var(--ink);
+ border:1.5px solid var(--line);border-radius:12px;padding:9px 12px;
+ font-size:16px;font-weight:750;line-height:1.45;min-height:54px;
+}
+.picker-trigger>span:first-child{overflow:hidden;white-space:normal;overflow-wrap:anywhere}
+.picker-trigger>span:last-child{flex:none;font-size:18px}
+.picker-dialog{
+ position:fixed;width:min(520px,calc(100vw - 14px));height:min(760px,calc(100dvh - 95px));
+ max-width:calc(100vw - 14px);max-height:calc(100dvh - 95px);
+ padding:0;border:1.5px solid var(--line);border-radius:22px;background:var(--surface);color:var(--ink);
+ box-shadow:0 18px 55px #0004;overflow:hidden;
+}
+.picker-dialog[open]{display:flex;flex-direction:column}
+.picker-dialog::backdrop{background:#03172588}
+.picker-header{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:7px;flex:none;padding:10px 9px;background:var(--surface);border-bottom:1px solid var(--line)}
+.picker-header h2{font-size:17px;line-height:1.2;margin:0;overflow-wrap:anywhere;text-align:center}
+.picker-header button,.picker-footer button{min-height:45px;border-radius:12px;font-size:16px;font-weight:850;padding:8px 12px;white-space:nowrap}
+.picker-back{background:var(--accent);color:var(--accent-ink)}
+.picker-choices{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.picker-option{display:flex;width:100%;min-height:70px;align-items:center;justify-content:space-between;gap:15px;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:17px 18px;background:var(--surface);color:var(--ink);text-align:left;font-size:19px;line-height:1.4;font-weight:730;white-space:normal;overflow-wrap:anywhere}
+.picker-option:active{background:var(--surface2)}
+.picker-radio{flex:none;width:25px;height:25px;border:2px solid var(--muted);border-radius:50%;position:relative}
+.picker-option[aria-checked="true"] .picker-radio{border-color:var(--accent);border-width:3px}
+.picker-option[aria-checked="true"] .picker-radio::after{content:"";width:11px;height:11px;background:var(--accent);border-radius:50%;position:absolute;top:4px;left:4px}
+.picker-footer{flex:none;background:var(--surface);border-top:1px solid var(--line);padding:8px 12px;display:flex;justify-content:center}
+.picker-footer button{min-width:170px}
+@media (max-width:370px){.picker-header h2{font-size:15px}.picker-header button{font-size:14px;padding:8px}.picker-option{font-size:18px;min-height:67px}}
 </style>
 <title>高松タクシー・シグナル v1.0 試験版（単一HTML）</title>
 </head>
@@ -81,7 +115,16 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
     <div class="toolbar"><button id="refreshEvents">イベント更新</button></div>
     <section class="event-filter">
       <div class="date-pills date-pills-four" aria-label="表示期間"><button data-range="today" aria-pressed="false">今日</button><button data-range="tomorrow" aria-pressed="false">明日</button><button data-range="week" aria-pressed="true">今後7日</button><button data-range="all" aria-pressed="false">すべて</button></div>
-      <div class="filter-grid"><label>会場<select id="venueFilter"><option value="all">すべての会場</option></select></label><label>規模<select id="tierFilter"><option value="all">すべて</option><option value="large">大規模</option><option value="medium">中規模</option><option value="small">小規模</option><option value="limited">関係者向け</option><option value="unknown">規模不明</option></select></label></div>
+      <div class="filter-grid">
+        <div class="picker-field"><label for="venueChoose">会場</label>
+          <select id="venueFilter" hidden aria-hidden="true" tabindex="-1"><option value="all">すべての会場</option></select>
+          <button id="venueChoose" class="picker-trigger" type="button" aria-haspopup="dialog" aria-controls="pickerDialog"><span id="venueChosen">すべての会場</span><span aria-hidden="true">▾</span></button>
+        </div>
+        <div class="picker-field"><label for="tierChoose">規模</label>
+          <select id="tierFilter" hidden aria-hidden="true" tabindex="-1"><option value="all">すべて</option><option value="large">大規模</option><option value="medium">中規模</option><option value="small">小規模</option><option value="limited">関係者向け</option><option value="unknown">規模不明</option></select>
+          <button id="tierChoose" class="picker-trigger" type="button" aria-haspopup="dialog" aria-controls="pickerDialog"><span id="tierChosen">すべて</span><span aria-hidden="true">▾</span></button>
+        </div>
+      </div>
       <details class="data-status"><summary>取得状況</summary><p id="eventsStatus">データを取得中…</p></details>
     </section>
     <div id="autoEventList" class="event-list"><p class="empty">イベント情報を取得中…</p></div><button id="eventMore" class="wide-button" hidden>さらに30件を表示</button>
@@ -106,9 +149,9 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
           <label for="evPlace"><span id="evPlaceLabel">会場名（必須）</span>
             <input id="evPlace" maxlength="160" required placeholder="例：サンポートホール高松">
           </label>
-          <div class="zone-field"><label for="zoneChoose">対象地区</label>
+          <div class="zone-field picker-field"><label for="zoneChoose">対象地区</label>
             <select id="evZone" hidden aria-hidden="true" tabindex="-1"></select>
-            <button type="button" id="zoneChoose" aria-haspopup="dialog" aria-controls="zoneDialog">地区を選ぶ：<span id="zoneChosen">高松駅・サンポート</span> ▾</button>
+            <button class="picker-trigger" type="button" id="zoneChoose" aria-haspopup="dialog" aria-controls="pickerDialog"><span id="zoneChosen">高松駅・サンポート</span><span aria-hidden="true">▾</span></button>
           </div>
           <div id="evDayWrap"><label for="evDay">イベント開催日（開始・終了時刻が不明でも日付だけで登録可）
             <input id="evDay" type="date"></label></div>
@@ -140,11 +183,15 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
 </main>
 <footer class="page footer">高松タクシー・シグナル v1.0 試験版｜運転中の操作禁止</footer>
 
-<dialog id="zoneDialog" class="zone-dialog" aria-labelledby="zoneDialogTitle">
-  <div class="zone-dialog-head"><h2 id="zoneDialogTitle">対象地区を選ぶ</h2><button id="zoneBack" type="button">← 戻る</button></div>
-  <p class="zone-dialog-note">地区を選ぶと登録画面に戻ります。</p>
-  <div id="zoneChoices" class="zone-choices" role="group" aria-label="対象地区の一覧"></div>
-  <button id="zoneBackBottom" class="zone-back-bottom" type="button">← 戻る</button>
+<!-- 会場・規模・対象地区で共通使用。Androidの全画面selectを使わない。 -->
+<dialog id="pickerDialog" class="picker-dialog" aria-labelledby="pickerTitle">
+  <div class="picker-header">
+    <button type="button" id="pickerBack" class="picker-back">← 戻る</button>
+    <h2 id="pickerTitle">項目を選択</h2>
+    <button type="button" id="pickerClose" class="picker-close" aria-label="選択画面を閉じる">✕</button>
+  </div>
+  <div id="pickerChoices" class="picker-choices" role="group" aria-label="選択肢"></div>
+  <div class="picker-footer"><button type="button" id="pickerBackBottom" class="picker-back">← 戻る</button></div>
 </dialog>
 <dialog id="eventDialog"><form id="editForm" method="dialog"><h2 id="editHeading">イベント登録</h2><p id="editSource"></p><label>イベント名<input id="editName" maxlength="120" required></label><label>会場<input id="editVenue" maxlength="160" required></label><div class="form-grid"><label>開始日<input id="editDay" type="date" required></label><label>終了日<input id="editEndDay" type="date"></label><label>開始時間<input id="editStart" type="time"></label><label>終了時間<input id="editEnd" type="time"></label></div><label>参加予定人数（任意）<input id="editCount" type="number" min="0" max="100000"></label><label>規模<select id="editTier"><option value="auto">自動判定</option><option value="large">大規模</option><option value="medium">中規模</option><option value="small">小規模</option><option value="limited">関係者向け</option><option value="unknown">規模不明</option></select></label><label>確認状況<select id="editConfidence"><option value="unverified">未確認</option><option value="confirmed">本人確認済み</option></select></label><label>自分用メモ<textarea id="editComment" maxlength="300"></textarea></label><div class="dialog-actions"><button type="button" id="editCancel">戻る</button><button type="button" id="editRestore" hidden>補正を解除</button><button type="button" id="editRemove" hidden>削除</button><button type="submit" id="editSave">保存</button></div></form></dialog>
 <script>
@@ -431,7 +478,7 @@ const state={official:[],rows:[],manual:saved.manual,overrides:saved.overrides,m
 
 function persist(){const ok=saveUserData(state);if(!ok)alert('端末への保存に失敗しました。ブラウザの空き容量・設定をご確認ください。');return ok;}
 function recompute(){state.rows=combinedEvents(state.official,state.manual,state.overrides);render();}
-function render(){renderFocus(state.rows,state.focus);const result=renderEventList(state.rows,state);state.venue=result.venue;renderMemos([...state.memos]);}
+function render(){renderFocus(state.rows,state.focus);const result=renderEventList(state.rows,state);state.venue=result.venue;syncPickerLabels();renderMemos([...state.memos]);}
 function updateClock(){ $('clock').textContent=jstClock();}
 function setupTheme(){const themeKey=document.documentElement.dataset.stage==='production'?STORAGE_KEYS.theme:'ts-v1-preview:'+STORAGE_KEYS.theme;const savedTheme=localStorage.getItem(themeKey)||localStorage.getItem(STORAGE_KEYS.theme);const fallback=window.matchMedia?.('(prefers-color-scheme:dark)').matches?'night':'day';function setTheme(v){document.documentElement.dataset.theme=v;$('themeToggle').textContent=v==='night'?'☀ 昼':'☾ 夜';document.querySelector('meta[name="theme-color"]').setAttribute('content',v==='night'?'#183547':'#f2f6f9')}setTheme(savedTheme==='night'||savedTheme==='day'?savedTheme:fallback);$('themeToggle').addEventListener('click',()=>{const t=document.documentElement.dataset.theme==='night'?'day':'night';setTheme(t);localStorage.setItem(themeKey,t)})}
 function activate(view){for(const button of document.querySelectorAll('.tabs button'))button.setAttribute('aria-selected',String(button.dataset.tab===view));for(const section of document.querySelectorAll('.tabview'))section.hidden=section.id!=='view-'+view;window.scrollTo({top:0,behavior:'instant'});}
@@ -445,6 +492,61 @@ catch(e){status.textContent='交通情報を取得できません。情報源タ
 async function updateEvents(){if(state.eventLoading)return;state.eventLoading=true;const btn=$('refreshEvents');btn.disabled=true;btn.textContent='更新中…';$('eventsStatus').textContent='公式データを取得中…';try{const data=await loadOfficialEvents(partial=>{state.official=partial.events;state.statuses=partial.sources;state.updatedAt=partial.updatedAt;recompute();});state.official=data.events;state.statuses=data.sources;state.updatedAt=data.updatedAt;recompute();const lines=data.sources.map(s=>`${s.name}: ${s.status}（${s.count}件）`);if(data.errors.length)lines.push('一部の情報源から取得できませんでした。');$('eventsStatus').textContent=lines.join('\n');}
 catch(e){$('eventsStatus').textContent='イベントデータ取得に失敗しました。'+e.message;console.warn('イベント',e)}finally{state.eventLoading=false;btn.disabled=false;btn.textContent='イベント更新';}}
 
+// 地区・会場・規模の選択動作を1か所に集約する。
+// 元の select はイベント絞り込みの内部状態として維持するが、画面には見せない。
+function syncPickerLabels(){
+  const names={evZone:'zoneChosen',venueFilter:'venueChosen',tierFilter:'tierChosen'};
+  for(const [selectId,outputId] of Object.entries(names)){
+    const select=$(selectId),out=$(outputId);
+    if(select&&out)out.textContent=select.selectedOptions[0]?.textContent||'選択してください';
+  }
+}
+function setupPickers(){
+  const dialog=$('pickerDialog'),list=$('pickerChoices'),title=$('pickerTitle');
+  const triggers=[['zoneChoose','evZone','対象地区を選ぶ'],['venueChoose','venueFilter','会場を選ぶ'],['tierChoose','tierFilter','規模を選ぶ']];
+  let source=null,from=null;
+  function closePicker(){if(dialog.open)dialog.close();}
+  for(const [buttonId,selectId,heading] of triggers){
+    const trigger=$(buttonId),select=$(selectId);
+    if(!trigger||!select)continue;
+    trigger.addEventListener('click',()=>{
+      source=select;from=trigger;title.textContent=heading;
+      list.replaceChildren();
+      for(const option of select.options){
+        if(option.disabled||option.hidden)continue;
+        const item=document.createElement('button');
+        item.type='button';item.className='picker-option';
+        item.dataset.value=option.value;
+        item.setAttribute('role','radio');
+        item.setAttribute('aria-checked',String(option.value===select.value));
+        const label=document.createElement('span');label.textContent=option.textContent;
+        const symbol=document.createElement('span');symbol.className='picker-radio';symbol.setAttribute('aria-hidden','true');
+        item.append(label,symbol);list.append(item);
+      }
+      dialog.showModal();
+      list.scrollTop=0;
+      const current=list.querySelector('[aria-checked="true"]');
+      if(current){current.scrollIntoView({block:'nearest'});}
+    });
+  }
+  list.addEventListener('click',e=>{
+    const option=e.target.closest('button[data-value]');
+    if(!option||!source)return;
+    source.value=option.dataset.value;
+    source.dispatchEvent(new Event('change',{bubbles:true}));
+    syncPickerLabels();
+    closePicker();
+  });
+  for(const id of ['pickerBack','pickerClose','pickerBackBottom']){
+    $(id).addEventListener('click',closePicker);
+  }
+  dialog.addEventListener('close',()=>{
+    syncPickerLabels();
+    if(from?.isConnected)from.focus({preventScroll:true});
+    source=null;from=null;
+  });
+  syncPickerLabels();
+}
 function setupFilters(){for(const btn of document.querySelectorAll('.tabs button'))btn.addEventListener('click',()=>activate(btn.dataset.tab));for(const b of document.querySelectorAll('[data-focus]'))b.addEventListener('click',()=>{state.focus=b.dataset.focus;renderFocus(state.rows,state.focus)});for(const b of document.querySelectorAll('[data-range]'))b.addEventListener('click',()=>{state.range=b.dataset.range;state.limit=30;render()});$('venueFilter').addEventListener('change',()=>{state.venue=$('venueFilter').value;state.limit=30;render()});$('tierFilter').addEventListener('change',()=>{state.tier=$('tierFilter').value;state.limit=30;render()});$('eventMore').addEventListener('click',()=>{state.limit+=30;render()});$('refreshWeather').addEventListener('click',()=>{updateWeather();updateNowcast()});$('trafficRefresh').addEventListener('click',()=>updateTraffic(true));$('refreshEvents').addEventListener('click',updateEvents);}
 function editorOpen(id=null){const e=id?state.rows.find(x=>x.id===id):null;if(id&&!e)return;state.editingID=id;const initial=e||{title:'',venue:'',date:jstDateKey(),endDate:'',startAt:null,endAt:null,participants:null,scaleOverride:'auto',confidence:'unverified',personalNote:'',sourceType:'manual'};
 $('editHeading').textContent=id?(e.sourceType==='manual'?'手動登録を編集':'公式イベントを本人補正'):'イベント新規登録';$('editSource').textContent=e?.sourceType!=='manual'&&id?'公式情報を直接変更せず、この端末に補正値を保存します。':'この端末の個人登録として保存されます。';$('editName').value=initial.title||'';$('editVenue').value=initial.venue||'';$('editDay').value=initial.date||jstDateKey();$('editEndDay').value=initial.endDate||'';$('editStart').value=initial.startAt?shortTime(initial.startAt):'';$('editEnd').value=initial.endAt?shortTime(initial.endAt):'';$('editCount').value=Number.isInteger(initial.participants)?initial.participants:'';$('editTier').value=initial.scaleOverride||'auto';$('editConfidence').value=initial.confidence||'unverified';$('editComment').value=initial.personalNote||'';$('editRestore').hidden=!id||e.sourceType==='manual'||!state.overrides[id];$('editRemove').hidden=!id||e.sourceType!=='manual';$('eventDialog').showModal();}
@@ -459,7 +561,7 @@ $('editRemove').addEventListener('click',()=>{if(!state.editingID||!confirm('手
 
 }
 function setupMemos(){
-  const area=$('manualRegister'),form=$('memoForm'),kind=$('evType'),zone=$('evZone'),zoneDialog=$('zoneDialog');
+  const area=$('manualRegister'),form=$('memoForm'),kind=$('evType'),zone=$('evZone');
   zone.innerHTML=ZONES.map(z=>`<option value="${esc(z.id)}">${esc(z.name)}</option>`).join('');
   const categories={
     event:{label:'イベント名',example:'例：市民ホールでコンサート',place:'会場名（必須）',placeExample:'例：サンポートホール高松',time:'開始日時（不明なら空欄）',endTime:'終了日時（不明なら空欄）',states:[]},
@@ -470,12 +572,6 @@ function setupMemos(){
     other:{label:'情報の内容',example:'例：大型施設周辺で一時的な混雑',place:'場所（任意）',placeExample:'例：高松駅前',time:'発生・確認日時（不明なら空欄）',endTime:'終了日時（不明なら空欄）',states:[]}
   };
   function selectedZoneLabel(){const named=ZONES.find(z=>z.id===zone.value);$('zoneChosen').textContent=named?.name||'その他';}
-  function syncZoneButtons(){zoneDialog.querySelectorAll('[data-select-zone]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.selectZone===zone.value)));}
-  $('zoneChoices').innerHTML=ZONES.map(z=>`<button type="button" data-select-zone="${esc(z.id)}" aria-pressed="false">${esc(z.name)}</button>`).join('');
-  $('zoneChoose').addEventListener('click',()=>{syncZoneButtons();zoneDialog.showModal();});
-  $('zoneChoices').addEventListener('click',e=>{const b=e.target.closest('[data-select-zone]');if(!b)return;zone.value=b.dataset.selectZone;selectedZoneLabel();zoneDialog.close();});
-  for(const id of ['zoneBack','zoneBackBottom'])$(id).addEventListener('click',()=>zoneDialog.close());
-  zoneDialog.addEventListener('close',()=>{$('zoneChoose').focus({preventScroll:true});});
   zone.addEventListener('change',selectedZoneLabel);
   selectedZoneLabel();
   function syncFields(){
@@ -560,7 +656,7 @@ function setupMemos(){
 }
 
 function setupInstall(){if(document.documentElement.dataset.previewOnly==='single')return;let pending=null;const btn=$('installTop'),guide=$('installGuide');const standalone=()=>window.matchMedia('(display-mode:standalone)').matches||navigator.standalone===true;if(standalone())return;btn.hidden=false;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();pending=e;btn.hidden=false});window.addEventListener('appinstalled',()=>{btn.hidden=true;guide.hidden=true;pending=null});btn.addEventListener('click',async()=>{if(pending){pending.prompt();await pending.userChoice;pending=null;}else{guide.hidden=false;guide.textContent=/iPhone|iPad|iPod/.test(navigator.userAgent)?'Safariの共有ボタン→「ホーム画面に追加」を選択してください。':'ブラウザのメニューから「ホーム画面に追加」または「アプリをインストール」を選択してください。';}})}
-function init(){document.title='高松タクシー・シグナル '+APP_VERSION;setupTheme();updateClock();setInterval(updateClock,60000);renderSources();setupFilters();setupEventEditing();setupMemos();setupInstall();recompute();updateWeather();updateNowcast();updateTraffic();updateEvents();setInterval(()=>{if(!document.hidden){updateTraffic();updateNowcast()}},300000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){updateTraffic();if(Date.now()-state.nowcastLast>300000)updateNowcast()}});if(document.documentElement.dataset.previewOnly!=='single'&&'serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./sw.js').catch(console.warn);}
+function init(){document.title='高松タクシー・シグナル '+APP_VERSION;setupTheme();updateClock();setInterval(updateClock,60000);renderSources();setupFilters();setupEventEditing();setupMemos();setupPickers();setupInstall();recompute();updateWeather();updateNowcast();updateTraffic();updateEvents();setInterval(()=>{if(!document.hidden){updateTraffic();updateNowcast()}},300000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){updateTraffic();if(Date.now()-state.nowcastLast>300000)updateNowcast()}});if(document.documentElement.dataset.previewOnly!=='single'&&'serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./sw.js').catch(console.warn);}
 init();
 
 </script>
