@@ -89,6 +89,18 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
 .picker-footer{flex:none;background:var(--surface);border-top:1px solid var(--line);padding:8px 12px;display:flex;justify-content:center}
 .picker-footer button{min-width:170px}
 @media (max-width:370px){.picker-header h2{font-size:15px}.picker-header button{font-size:14px;padding:8px}.picker-option{font-size:18px;min-height:67px}}
+
+/* イベント検索の選択欄：枠内に見出しだけ。全てのプルダウンを共通画面で選択。 */
+#evType[hidden],#evSize[hidden],#evCondition[hidden],#editTier[hidden],#editConfidence[hidden]{display:none!important;position:absolute!important;visibility:hidden!important;pointer-events:none!important}
+.manual-register .manual-select-label{display:block;margin:9px 0 4px;font-size:15px;font-weight:800}
+.manual-register #memoForm .picker-trigger{margin:3px 0 9px;min-height:52px}
+#evConditionWrap[hidden]{display:none!important}
+#eventDialog .picker-trigger{display:flex;width:100%;min-height:48px;text-align:left;align-items:center;justify-content:space-between;gap:10px}
+.filter-grid .picker-trigger{min-height:53px}
+.rain-popup-head{display:flex;align-items:center;justify-content:space-between;gap:9px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.rain-popup-head strong{font-size:15px}
+.rain-popup-head button{border-radius:9px;min-height:36px;min-width:39px;padding:3px 8px;font-size:19px}
+.rain-popup #rainBack{background:var(--accent);color:var(--accent-ink);font-weight:800;min-height:44px;font-size:15px;margin-top:4px}
 </style>
 <title>高松タクシー・シグナル v1.0 試験版（単一HTML）</title>
 </head>
@@ -101,7 +113,7 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
   <section class="safety" aria-label="安全上の注意"><strong>運転中は操作禁止</strong><details><summary>注意事項</summary><p>運転を停止した安全な場所で操作してください。予報・交通・催事情報は参考情報です。駐停車や営業区域の規制を遵守し、最新情報を公式サイトで確認してください。</p></details></section>
   <section class="weather-strip" aria-label="気象庁の天気と強雨情報">
     <a class="weather-summary" href="https://www.jma.go.jp/bosai/forecast/#area_type=offices&area_code=370000" target="_blank" rel="noopener noreferrer" title="香川県の天気予報"><span id="wxEmoji" class="weather-emoji" aria-label="天気取得中">—</span><strong id="wxMain">取得中…</strong></a>
-    <div class="rain-status" id="rainBox"><span id="rainAlert" class="rain-label">強雨確認中</span><details class="rain-details"><summary aria-label="強雨の詳細">▼</summary><div class="rain-popup"><span id="rainDetail">気象庁の雨雲情報を確認中です。</span><a target="_blank" rel="noopener noreferrer" href="https://www.jma.go.jp/bosai/nowc/#zoom:9/lat:34.34/lon:134.05/colordepth:normal/elements:hrpns&slmcs">雨雲の動き</a><span>高松中心部と約6km圏の参考判定です。</span></div></details></div>
+    <div class="rain-status" id="rainBox"><span id="rainAlert" class="rain-label">強雨確認中</span><details class="rain-details"><summary aria-label="強雨の詳細">▼</summary><div class="rain-popup"><div class="rain-popup-head"><strong>強雨の詳細</strong><button type="button" id="rainCloseTop" aria-label="強雨の詳細を閉じる">✕</button></div><span id="rainDetail">気象庁の雨雲情報を確認中です。</span><a target="_blank" rel="noopener noreferrer" href="https://www.jma.go.jp/bosai/nowc/#zoom:9/lat:34.34/lon:134.05/colordepth:normal/elements:hrpns&slmcs">雨雲の動き</a><span>高松中心部と約6km圏の参考判定です。</span><button type="button" id="rainBack">← 戻る</button></div></details></div>
     <button id="refreshWeather" class="refresh-weather" type="button">更新</button>
   </section>
   <div class="install-line"><button id="installTop" hidden>＋ ホームに追加</button><p id="installGuide" hidden></p></div>
@@ -116,16 +128,16 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
     <section class="event-filter">
       <div class="date-pills date-pills-four" aria-label="表示期間"><button data-range="today" aria-pressed="false">今日</button><button data-range="tomorrow" aria-pressed="false">明日</button><button data-range="week" aria-pressed="true">今後7日</button><button data-range="all" aria-pressed="false">すべて</button></div>
       <div class="filter-grid">
-        <div class="picker-field"><label for="venueChoose">会場</label>
+        <div class="picker-field">
           <select id="venueFilter" hidden aria-hidden="true" tabindex="-1"><option value="all">すべての会場</option></select>
-          <button id="venueChoose" class="picker-trigger" type="button" aria-haspopup="dialog" aria-controls="pickerDialog"><span id="venueChosen">すべての会場</span><span aria-hidden="true">▾</span></button>
+          <button id="venueChoose" class="picker-trigger" type="button" aria-label="会場を選択" aria-haspopup="dialog" aria-controls="pickerDialog"><span id="venueChosen">会場</span><span aria-hidden="true">▾</span></button>
         </div>
-        <div class="picker-field"><label for="tierChoose">規模</label>
+        <div class="picker-field">
           <select id="tierFilter" hidden aria-hidden="true" tabindex="-1"><option value="all">すべて</option><option value="large">大規模</option><option value="medium">中規模</option><option value="small">小規模</option><option value="limited">関係者向け</option><option value="unknown">規模不明</option></select>
-          <button id="tierChoose" class="picker-trigger" type="button" aria-haspopup="dialog" aria-controls="pickerDialog"><span id="tierChosen">すべて</span><span aria-hidden="true">▾</span></button>
+          <button id="tierChoose" class="picker-trigger" type="button" aria-label="規模を選択" aria-haspopup="dialog" aria-controls="pickerDialog"><span id="tierChosen">規模</span><span aria-hidden="true">▾</span></button>
         </div>
       </div>
-      <details class="data-status"><summary>取得状況</summary><p id="eventsStatus">データを取得中…</p></details>
+      <p id="eventsStatus" hidden aria-hidden="true">データを取得中…</p>
     </section>
     <div id="autoEventList" class="event-list"><p class="empty">イベント情報を取得中…</p></div><button id="eventMore" class="wide-button" hidden>さらに30件を表示</button>
     <details class="more-section manual-register" id="manualRegister">
@@ -133,16 +145,16 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
       <div class="section-inside">
         <p class="manual-help">イベント・道路・鉄道・船舶・航空便など、自分で確認した情報を登録します。内容はこの端末だけに保存され、ほかの人には公開されません。</p>
         <form id="memoForm">
-          <label for="evType">情報の種類
-            <select id="evType" required>
+          <label class="manual-select-label" for="typeChoose">情報の種類</label>
+          <select id="evType" hidden aria-hidden="true" tabindex="-1" required>
               <option value="event">イベント・催事</option>
               <option value="road">道路・交通規制</option>
               <option value="rail">鉄道</option>
               <option value="port">船舶・フェリー</option>
               <option value="flight">航空便</option>
               <option value="other">その他</option>
-            </select>
-          </label>
+          </select>
+          <button id="typeChoose" class="picker-trigger" type="button" aria-haspopup="dialog" aria-controls="pickerDialog"><span id="typeChosen">イベント・催事</span><span aria-hidden="true">▾</span></button>
           <label for="evTitle"><span id="evTitleLabel">イベント名</span>
             <input id="evTitle" maxlength="72" required placeholder="例：市民ホールの公演">
           </label>
@@ -160,13 +172,15 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
           <p class="manual-time-note">開始・終了の日時はどちらも空欄で登録できます。イベントは開催日だけ指定してください。</p>
           <div id="eventOnlyFields">
             <label for="evCount">参加予定人数（任意）<input id="evCount" type="number" min="0" max="100000" placeholder="不明なら空欄"></label>
-            <label for="evSize">規模の目安
-              <select id="evSize"><option value="auto">自動判定・不明</option><option value="large">大規模</option><option value="medium">中規模</option><option value="small">小規模</option><option value="limited">関係者向け</option></select>
-            </label>
+            <label class="manual-select-label" for="sizeChoose">規模の目安</label>
+            <select id="evSize" hidden aria-hidden="true" tabindex="-1"><option value="auto">自動判定・不明</option><option value="large">大規模</option><option value="medium">中規模</option><option value="small">小規模</option><option value="limited">関係者向け</option></select>
+            <button id="sizeChoose" class="picker-trigger" type="button" aria-haspopup="dialog" aria-controls="pickerDialog"><span id="sizeChosen">自動判定・不明</span><span aria-hidden="true">▾</span></button>
           </div>
-          <label id="evConditionWrap" for="evCondition" hidden><span id="evConditionLabel">状況</span>
-            <select id="evCondition"></select>
-          </label>
+          <div id="evConditionWrap" class="picker-field" hidden>
+            <label id="evConditionLabel" for="conditionChoose">状況</label>
+            <select id="evCondition" hidden aria-hidden="true" tabindex="-1"></select>
+            <button id="conditionChoose" class="picker-trigger" type="button" aria-haspopup="dialog" aria-controls="pickerDialog"><span id="conditionChosen">選択してください（任意）</span><span aria-hidden="true">▾</span></button>
+          </div>
           <label for="evLink">情報源URL（任意）<input id="evLink" type="url" placeholder="https://..."></label>
           <label for="evNote">備考・確認した内容（任意）<textarea id="evNote" maxlength="300" rows="3" placeholder="例：現地確認、規制解除は未確認"></textarea></label>
           <div class="manual-actions"><button id="saveManual" type="submit">この端末に登録</button><button id="cancelMemoEdit" type="button" hidden>編集を中止</button></div>
@@ -193,7 +207,7 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
   <div id="pickerChoices" class="picker-choices" role="group" aria-label="選択肢"></div>
   <div class="picker-footer"><button type="button" id="pickerBackBottom" class="picker-back">← 戻る</button></div>
 </dialog>
-<dialog id="eventDialog"><form id="editForm" method="dialog"><h2 id="editHeading">イベント登録</h2><p id="editSource"></p><label>イベント名<input id="editName" maxlength="120" required></label><label>会場<input id="editVenue" maxlength="160" required></label><div class="form-grid"><label>開始日<input id="editDay" type="date" required></label><label>終了日<input id="editEndDay" type="date"></label><label>開始時間<input id="editStart" type="time"></label><label>終了時間<input id="editEnd" type="time"></label></div><label>参加予定人数（任意）<input id="editCount" type="number" min="0" max="100000"></label><label>規模<select id="editTier"><option value="auto">自動判定</option><option value="large">大規模</option><option value="medium">中規模</option><option value="small">小規模</option><option value="limited">関係者向け</option><option value="unknown">規模不明</option></select></label><label>確認状況<select id="editConfidence"><option value="unverified">未確認</option><option value="confirmed">本人確認済み</option></select></label><label>自分用メモ<textarea id="editComment" maxlength="300"></textarea></label><div class="dialog-actions"><button type="button" id="editCancel">戻る</button><button type="button" id="editRestore" hidden>補正を解除</button><button type="button" id="editRemove" hidden>削除</button><button type="submit" id="editSave">保存</button></div></form></dialog>
+<dialog id="eventDialog"><form id="editForm" method="dialog"><h2 id="editHeading">イベント登録</h2><p id="editSource"></p><label>イベント名<input id="editName" maxlength="120" required></label><label>会場<input id="editVenue" maxlength="160" required></label><div class="form-grid"><label>開始日<input id="editDay" type="date" required></label><label>終了日<input id="editEndDay" type="date"></label><label>開始時間<input id="editStart" type="time"></label><label>終了時間<input id="editEnd" type="time"></label></div><label>参加予定人数（任意）<input id="editCount" type="number" min="0" max="100000"></label><label for="editTierChoose">規模</label><select id="editTier" hidden aria-hidden="true" tabindex="-1"><option value="auto">自動判定</option><option value="large">大規模</option><option value="medium">中規模</option><option value="small">小規模</option><option value="limited">関係者向け</option><option value="unknown">規模不明</option></select><button id="editTierChoose" class="picker-trigger" type="button" aria-haspopup="dialog" aria-controls="pickerDialog"><span id="editTierChosen">自動判定</span><span aria-hidden="true">▾</span></button><label for="editConfidenceChoose">確認状況</label><select id="editConfidence" hidden aria-hidden="true" tabindex="-1"><option value="unverified">未確認</option><option value="confirmed">本人確認済み</option></select><button id="editConfidenceChoose" class="picker-trigger" type="button" aria-haspopup="dialog" aria-controls="pickerDialog"><span id="editConfidenceChosen">未確認</span><span aria-hidden="true">▾</span></button><label>自分用メモ<textarea id="editComment" maxlength="300"></textarea></label><div class="dialog-actions"><button type="button" id="editCancel">戻る</button><button type="button" id="editRestore" hidden>補正を解除</button><button type="button" id="editRemove" hidden>削除</button><button type="submit" id="editSave">保存</button></div></form></dialog>
 <script>
 // --- config.js ---
 /** 設定値はここに集約。秘密鍵はブラウザに置かない。 */
@@ -495,15 +509,25 @@ catch(e){$('eventsStatus').textContent='イベントデータ取得に失敗し�
 // 地区・会場・規模の選択動作を1か所に集約する。
 // 元の select はイベント絞り込みの内部状態として維持するが、画面には見せない。
 function syncPickerLabels(){
-  const names={evZone:'zoneChosen',venueFilter:'venueChosen',tierFilter:'tierChosen'};
+  const names={evZone:'zoneChosen',venueFilter:'venueChosen',tierFilter:'tierChosen',
+    evType:'typeChosen',evSize:'sizeChosen',evCondition:'conditionChosen',
+    editTier:'editTierChosen',editConfidence:'editConfidenceChosen'};
   for(const [selectId,outputId] of Object.entries(names)){
     const select=$(selectId),out=$(outputId);
-    if(select&&out)out.textContent=select.selectedOptions[0]?.textContent||'選択してください';
+    if(!select||!out)continue;
+    if(selectId==='venueFilter'&&select.value==='all')out.textContent='会場';
+    else if(selectId==='tierFilter'&&select.value==='all')out.textContent='規模';
+    else out.textContent=select.selectedOptions[0]?.textContent||'選択してください';
   }
 }
 function setupPickers(){
   const dialog=$('pickerDialog'),list=$('pickerChoices'),title=$('pickerTitle');
-  const triggers=[['zoneChoose','evZone','対象地区を選ぶ'],['venueChoose','venueFilter','会場を選ぶ'],['tierChoose','tierFilter','規模を選ぶ']];
+  const triggers=[
+    ['zoneChoose','evZone','対象地区を選ぶ'],['venueChoose','venueFilter','会場を選ぶ'],['tierChoose','tierFilter','規模を選ぶ'],
+    ['typeChoose','evType','情報の種類を選ぶ'],['sizeChoose','evSize','規模の目安を選ぶ'],
+    ['conditionChoose','evCondition','状況を選ぶ'],['editTierChoose','editTier','規模を選ぶ'],
+    ['editConfidenceChoose','editConfidence','確認状況を選ぶ']
+  ];
   let source=null,from=null;
   function closePicker(){if(dialog.open)dialog.close();}
   for(const [buttonId,selectId,heading] of triggers){
@@ -549,7 +573,7 @@ function setupPickers(){
 }
 function setupFilters(){for(const btn of document.querySelectorAll('.tabs button'))btn.addEventListener('click',()=>activate(btn.dataset.tab));for(const b of document.querySelectorAll('[data-focus]'))b.addEventListener('click',()=>{state.focus=b.dataset.focus;renderFocus(state.rows,state.focus)});for(const b of document.querySelectorAll('[data-range]'))b.addEventListener('click',()=>{state.range=b.dataset.range;state.limit=30;render()});$('venueFilter').addEventListener('change',()=>{state.venue=$('venueFilter').value;state.limit=30;render()});$('tierFilter').addEventListener('change',()=>{state.tier=$('tierFilter').value;state.limit=30;render()});$('eventMore').addEventListener('click',()=>{state.limit+=30;render()});$('refreshWeather').addEventListener('click',()=>{updateWeather();updateNowcast()});$('trafficRefresh').addEventListener('click',()=>updateTraffic(true));$('refreshEvents').addEventListener('click',updateEvents);}
 function editorOpen(id=null){const e=id?state.rows.find(x=>x.id===id):null;if(id&&!e)return;state.editingID=id;const initial=e||{title:'',venue:'',date:jstDateKey(),endDate:'',startAt:null,endAt:null,participants:null,scaleOverride:'auto',confidence:'unverified',personalNote:'',sourceType:'manual'};
-$('editHeading').textContent=id?(e.sourceType==='manual'?'手動登録を編集':'公式イベントを本人補正'):'イベント新規登録';$('editSource').textContent=e?.sourceType!=='manual'&&id?'公式情報を直接変更せず、この端末に補正値を保存します。':'この端末の個人登録として保存されます。';$('editName').value=initial.title||'';$('editVenue').value=initial.venue||'';$('editDay').value=initial.date||jstDateKey();$('editEndDay').value=initial.endDate||'';$('editStart').value=initial.startAt?shortTime(initial.startAt):'';$('editEnd').value=initial.endAt?shortTime(initial.endAt):'';$('editCount').value=Number.isInteger(initial.participants)?initial.participants:'';$('editTier').value=initial.scaleOverride||'auto';$('editConfidence').value=initial.confidence||'unverified';$('editComment').value=initial.personalNote||'';$('editRestore').hidden=!id||e.sourceType==='manual'||!state.overrides[id];$('editRemove').hidden=!id||e.sourceType!=='manual';$('eventDialog').showModal();}
+$('editHeading').textContent=id?(e.sourceType==='manual'?'手動登録を編集':'公式イベントを本人補正'):'イベント新規登録';$('editSource').textContent=e?.sourceType!=='manual'&&id?'公式情報を直接変更せず、この端末に補正値を保存します。':'この端末の個人登録として保存されます。';$('editName').value=initial.title||'';$('editVenue').value=initial.venue||'';$('editDay').value=initial.date||jstDateKey();$('editEndDay').value=initial.endDate||'';$('editStart').value=initial.startAt?shortTime(initial.startAt):'';$('editEnd').value=initial.endAt?shortTime(initial.endAt):'';$('editCount').value=Number.isInteger(initial.participants)?initial.participants:'';$('editTier').value=initial.scaleOverride||'auto';$('editConfidence').value=initial.confidence||'unverified';$('editComment').value=initial.personalNote||'';syncPickerLabels();$('editRestore').hidden=!id||e.sourceType==='manual'||!state.overrides[id];$('editRemove').hidden=!id||e.sourceType!=='manual';$('eventDialog').showModal();}
 function editorClose(){state.editingID=null;$('eventDialog').close()}
 function setupEventEditing(){ $('editCancel').addEventListener('click',editorClose);document.addEventListener('click',e=>{
  const b=e.target.closest('[data-edit-event]');if(b){editorOpen(b.dataset.editEvent);return;}
@@ -587,6 +611,7 @@ function setupMemos(){
     const prev=el.value;
     el.innerHTML='<option value="">選択してください（任意）</option>'+c.states.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');
     if(c.states.includes(prev))el.value=prev;
+    syncPickerLabels();
   }
   function resetForm(){state.memoEditingID=null;form.reset();kind.value='event';$('evAt').value='';$('evEndAt').value='';$('evDay').value='';$('cancelMemoEdit').hidden=true;$('saveManual').textContent='この端末に登録';syncFields();selectedZoneLabel();}
   kind.addEventListener('change',syncFields);syncFields();
@@ -656,7 +681,15 @@ function setupMemos(){
 }
 
 function setupInstall(){if(document.documentElement.dataset.previewOnly==='single')return;let pending=null;const btn=$('installTop'),guide=$('installGuide');const standalone=()=>window.matchMedia('(display-mode:standalone)').matches||navigator.standalone===true;if(standalone())return;btn.hidden=false;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();pending=e;btn.hidden=false});window.addEventListener('appinstalled',()=>{btn.hidden=true;guide.hidden=true;pending=null});btn.addEventListener('click',async()=>{if(pending){pending.prompt();await pending.userChoice;pending=null;}else{guide.hidden=false;guide.textContent=/iPhone|iPad|iPod/.test(navigator.userAgent)?'Safariの共有ボタン→「ホーム画面に追加」を選択してください。':'ブラウザのメニューから「ホーム画面に追加」または「アプリをインストール」を選択してください。';}})}
-function init(){document.title='高松タクシー・シグナル '+APP_VERSION;setupTheme();updateClock();setInterval(updateClock,60000);renderSources();setupFilters();setupEventEditing();setupMemos();setupPickers();setupInstall();recompute();updateWeather();updateNowcast();updateTraffic();updateEvents();setInterval(()=>{if(!document.hidden){updateTraffic();updateNowcast()}},300000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){updateTraffic();if(Date.now()-state.nowcastLast>300000)updateNowcast()}});if(document.documentElement.dataset.previewOnly!=='single'&&'serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./sw.js').catch(console.warn);}
+function setupRainClose(){
+  const details=document.querySelector('.rain-details');
+  if(!details)return;
+  for(const id of ['rainCloseTop','rainBack'])$(id)?.addEventListener('click',()=>{details.open=false;details.querySelector('summary')?.focus({preventScroll:true});});
+  document.addEventListener('pointerdown',event=>{
+    if(details.open && !details.contains(event.target))details.open=false;
+  });
+}
+function init(){document.title='高松タクシー・シグナル '+APP_VERSION;setupTheme();updateClock();setInterval(updateClock,60000);renderSources();setupFilters();setupEventEditing();setupMemos();setupPickers();setupRainClose();setupInstall();recompute();updateWeather();updateNowcast();updateTraffic();updateEvents();setInterval(()=>{if(!document.hidden){updateTraffic();updateNowcast()}},300000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){updateTraffic();if(Date.now()-state.nowcastLast>300000)updateNowcast()}});if(document.documentElement.dataset.previewOnly!=='single'&&'serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./sw.js').catch(console.warn);}
 init();
 
 </script>
