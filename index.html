@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="ja" data-data-base="https://shikishimayamato.github.io/takamatsu-taxi-signal/data/" data-stage="preview">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#eef5f9">
+<meta name="description" content="高松市周辺の天気、強雨、交通情報、イベント日程をまとめたタクシー乗務員向けPWA">
+<!-- 単一HTML試験版は、本番PWAと競合させないためmanifestを無効化 -->
+<link rel="icon" href="./signal-192.png">
+<link rel="apple-touch-icon" href="./signal-192.png">
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;font-synthesis:none;color-scheme:light;--bg:#f2f6f9;--ink:#16354b;--muted:#496274;--surface:#fff;--surface2:#eaf3f8;--line:#b4ccd8;--accent:#096d81;--accent-ink:#fff;--warning-bg:#fff1d2;--warning-border:#d8bd78;--warning-ink:#78531d;--shadow:#193b520e}
+:root[data-theme="night"]{color-scheme:dark;--bg:#183547;--ink:#f0fbff;--muted:#b7d1df;--surface:#244758;--surface2:#31576a;--line:#587d90;--accent:#70ddd8;--accent-ink:#073343;--warning-bg:#282f28;--warning-border:#876a42;--warning-ink:#f9dba4;--shadow:#0004}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.5}button,select,input,textarea{font:inherit}button{cursor:pointer;color:var(--ink);background:var(--surface2);border:1.5px solid var(--line);border-radius:12px;padding:9px 15px;font-weight:750;min-height:44px}button:focus-visible,a:focus-visible,summary:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #e5a63a;outline-offset:2px}button[disabled]{opacity:.6;cursor:default}button[hidden],div[hidden],section[hidden],input[hidden],.tabview[hidden]{display:none!important}a{color:var(--accent)}.page{width:min(100%,1020px);margin:auto;padding:0 14px}.topbar{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:12}.topinner{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:66px}.brand{display:flex;align-items:center;gap:10px;min-width:0;line-height:1.25}.brand strong{font-size:20px;letter-spacing:.025em}.brand-icon{flex:0 0 38px;width:38px;height:38px;border:2px solid #5899a8;border-radius:12px;color:#0e7c90;display:grid;place-items:center;padding:3px}.brand-icon svg{width:100%}.headtools{display:flex;align-items:center;gap:8px;flex:none}.mode-button{padding:7px 9px;border-radius:10px;min-height:43px}.clock{font-weight:800;font-variant-numeric:tabular-nums;font-size:18px;white-space:nowrap}
+.safety{border:1.5px solid var(--warning-border);background:var(--warning-bg);color:var(--warning-ink);border-radius:17px;display:flex;justify-content:space-between;align-items:center;gap:9px;padding:13px 12px;margin:10px 0 8px}.safety strong{font-size:18px;white-space:nowrap}.safety details summary{cursor:pointer;font-weight:750;white-space:nowrap}.safety details[open]{flex:1}.safety details[open] p{font-size:13px;line-height:1.5;margin:12px 0 0}
+.weather-strip{display:grid;grid-template-columns:minmax(0,1fr) max-content 56px;gap:4px;align-items:center;padding:6px 7px;min-height:66px;border:1.5px solid var(--line);border-radius:18px;background:var(--surface);margin-bottom:8px}.weather-summary{min-width:0;display:flex;gap:5px;align-items:center;text-decoration:none;color:var(--ink)}.weather-emoji{flex:none;font-size:24px;line-height:1}.weather-summary strong{font-size:clamp(15px,4.8vw,22px);letter-spacing:-.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}.rain-status{display:flex;gap:2px;align-items:center;min-width:0}.rain-label{font-size:clamp(11px,3vw,14px);white-space:nowrap;background:#eaf0f2;border:1px solid var(--line);border-radius:9px;color:#37576a;font-weight:800;padding:6px 4px}.rain-status[data-level="danger"] .rain-label{background:#a33633;color:#fff;border-color:#a33633}.rain-status[data-level="caution"] .rain-label{background:#8e551d;color:#fff;border-color:#8e551d}.rain-details{position:relative}.rain-details summary{display:grid;place-items:center;cursor:pointer;color:var(--ink);width:25px;height:40px;list-style:none;font-weight:800}.rain-details summary::-webkit-details-marker{display:none}.rain-popup{position:absolute;top:43px;right:-58px;width:min(290px,85vw);background:var(--surface);border:2px solid var(--line);box-shadow:0 16px 30px #0003;border-radius:12px;padding:12px;display:grid;gap:9px;z-index:15;font-size:13px}.refresh-weather{font-weight:800;width:56px;min-height:50px;padding:0 3px;font-size:16px}.install-line{text-align:right}.install-line button{font-size:14px;padding:5px 9px}.install-line p{font-size:13px;color:var(--muted)}
+.x-card,.traffic-card{border:1.5px solid var(--line);background:var(--surface);border-radius:18px;margin:8px 0;padding:12px}.x-card{background:var(--surface2)}.x-card-heading{display:flex;align-items:center;justify-content:space-between;gap:9px;font-size:19px}.x-card-heading summary{font-size:15px;cursor:pointer}.x-card-heading p{font-size:13px;max-width:360px}.x-links{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}.x-links a{font-size:17px;font-weight:800;text-decoration:none;text-align:center;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:11px;padding:13px 6px}.traffic-head{display:flex;align-items:center;gap:7px}.traffic-head strong{font-size:17px;margin-right:auto}.traffic-head small{color:var(--muted);font-size:12px;white-space:nowrap}.traffic-head button{padding:5px 10px;min-height:38px}.traffic-card p{margin:12px 0;font-size:16px}.traffic-card details summary{cursor:pointer;font-weight:700;min-height:40px}.traffic-card details ul{margin:0 0 0 8px;padding:6px 0 0 18px;font-size:14px;line-height:1.7}.traffic-card li{margin-bottom:8px}
+.tabs{display:flex;gap:8px;margin:11px 0}.tab{padding:10px 14px;font-size:19px}.tab[aria-selected="true"],.date-pills button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}.tabview{padding-bottom:28px}.date-pills{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.date-pills button{border-radius:100px;font-size:17px;min-height:44px}.event-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.event-card{border:1.5px solid var(--line);border-left:6px solid #889fab;background:var(--surface);border-radius:17px;padding:15px;box-shadow:0 3px 9px var(--shadow)}.event-card[data-tier="large"]{border-left-color:#e8826b}.event-card[data-tier="medium"]{border-left-color:#e7ad4d}.event-card[data-tier="small"]{border-left-color:#3fb5b9}.event-card h3{font-size:19px;margin:8px 0 4px;line-height:1.45;overflow-wrap:anywhere}.event-lead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.event-date{font-size:16px;line-height:1.4}.event-venue{font-weight:750;margin-top:9px;overflow-wrap:anywhere;font-size:16px}.size-mark,.tiny-tag{font-size:13px;font-weight:800;border-radius:8px;border:1px solid var(--line);padding:3px 8px;background:var(--surface2);white-space:nowrap}.size-mark.large{background:#fbe0d9;color:#7b352b}.size-mark.medium{background:#f8e5bd;color:#745015}.size-mark.small{background:#d4eeef;color:#146a71}.size-mark.unknown{background:#e5edf0;color:#435e70}.size-mark.limited{background:#e8e0f5;color:#644b91}.event-times{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:7px;font-size:14px}.time-chip,.time-muted{border:1px solid var(--line);border-radius:8px;background:var(--surface2);padding:4px 7px}.time-muted{color:var(--muted)}.event-attendance,.event-watch{font-size:14px;color:var(--muted);margin:6px 0}.event-detail details summary{cursor:pointer;font-size:13px;margin:6px 0}.event-detail details p{margin:5px 0;color:var(--muted);font-size:13px}.event-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.subbutton{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;color:var(--ink);font-size:14px;padding:6px 10px;border:1px solid var(--line);border-radius:9px;background:var(--surface2);min-height:37px;font-weight:750}.empty{border:1px dashed var(--line);background:var(--surface);color:var(--muted);border-radius:12px;padding:17px;margin:0;grid-column:1/-1}.small-heading{font-size:19px;margin:20px 0 10px}
+.sourcegrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.source{background:var(--surface);color:var(--ink);border:1.5px solid var(--line);padding:13px 10px;display:flex;align-items:center;gap:10px;border-radius:15px;font-size:16px;font-weight:750;min-height:62px;text-decoration:none;overflow-wrap:anywhere}.source-icon{flex:0 0 24px;text-align:center;font-size:23px}.toolbar{display:flex;justify-content:flex-end;margin:4px 0 10px}.toolbar button{font-size:16px}.event-filter,.more-section{border:1.5px solid var(--line);background:var(--surface);border-radius:15px;padding:10px;margin-bottom:11px}.date-pills-four{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.date-pills-four button{border-radius:10px;font-size:15px;padding:7px 4px;min-height:44px}.filter-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:10px}.filter-grid label{font-size:14px;font-weight:750}.filter-grid select{width:100%;min-width:0;margin-top:4px;padding:10px 8px;font-size:15px;min-height:44px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px}.data-status{margin-top:7px;color:var(--muted);font-size:12px}.data-status summary{cursor:pointer}.data-status p{white-space:pre-wrap}.wide-button{margin-top:10px;width:100%}.edit-actions{display:flex;justify-content:flex-end;margin:14px 0}.more-section{margin:12px 0}.more-section>summary{cursor:pointer;font-size:17px;font-weight:800;padding:9px 4px}.more-section p{font-size:14px}.section-inside{display:grid;gap:12px;margin:8px 0}.inline-label{font-size:14px}.inline-label input{margin-top:4px}.section-inside input,.section-inside textarea,.section-inside select{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:8px;color:var(--ink);padding:9px;min-height:44px}.section-inside label{display:block;margin:6px 0}.section-inside .event-list{grid-template-columns:1fr}.action-row{display:flex;gap:8px;flex-wrap:wrap}.memo-card{padding:12px;border:1px solid var(--line);border-radius:10px}.memo-card p{margin:3px 0}.footer{font-size:12px;color:var(--muted);padding-top:10px;padding-bottom:50px;text-align:center}
+dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:18px;width:min(580px,calc(100vw - 18px));max-height:90dvh;overflow:auto;padding:18px}dialog::backdrop{background:#0216239c}dialog h2{margin:0 0 6px}dialog p{font-size:13px;color:var(--muted)}dialog label{display:block;font-size:14px;font-weight:750;margin-top:10px}dialog input,dialog select,dialog textarea{display:block;width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:4px;background:var(--surface);color:var(--ink);font-size:16px}dialog textarea{min-height:65px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.dialog-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:20px}.dialog-actions #editSave{background:var(--accent);color:var(--accent-ink)}
+@media(max-width:760px){.event-list{grid-template-columns:1fr}}
+@media(max-width:470px){.page{padding:0 12px}.topinner{min-height:64px}.brand strong{font-size:17px}.brand-icon{flex-basis:36px;width:36px;height:36px}.clock{font-size:16px}.mode-button{font-size:14px;padding:5px 8px}.safety strong{font-size:17px}.weather-emoji{font-size:21px}.weather-summary strong{font-size:clamp(14px,4.6vw,19px)}.rain-label{padding:6px 3px}.rain-details summary{width:22px}.refresh-weather{width:50px;font-size:16px}.weather-strip{grid-template-columns:minmax(0,1fr) max-content 50px;gap:3px}.tabs button{font-size:18px;padding:8px 10px}.event-card{padding:12px}.event-card h3{font-size:19px}.sourcegrid{grid-template-columns:1fr}.source{font-size:17px;min-height:58px}.filter-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:370px){.page{padding:0 9px}.brand strong{font-size:15px}.brand-icon{width:32px;flex-basis:32px;height:32px}.clock{font-size:14px}.weather-summary strong{font-size:14px}.rain-label{font-size:10px}.weather-emoji{font-size:18px}.weather-strip{grid-template-columns:minmax(0,1fr) max-content 44px}.refresh-weather{width:44px;font-size:13px}.rain-details summary{width:18px}.safety strong{font-size:15px}.safety details summary{font-size:13px}.tab{font-size:16px!important}.date-pills button{font-size:15px}.date-pills-four button{font-size:13px}}
+
+</style>
+<title>高松タクシー・シグナル v1.0 試験版（単一HTML）</title>
+</head>
+<body>
+<header class="topbar"><div class="page topinner">
+  <div class="brand"><span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 64 64"><rect x="2" y="2" width="60" height="60" rx="16" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 34h10l7-12 7 23 7-16h12" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M40 14a14 14 0 0 1 12 12M41 20a8 8 0 0 1 6 6" fill="none" stroke="#d59c3c" stroke-width="3"/></svg></span><strong>高松タクシー・シグナル</strong></div>
+  <div class="headtools"><button id="themeToggle" class="mode-button" aria-label="昼夜切替">☾ 夜</button><time id="clock" class="clock">--:--</time></div>
+</div></header>
+<main class="page">
+  <section class="safety" aria-label="安全上の注意"><strong>運転中は操作禁止</strong><details><summary>注意事項</summary><p>運転を停止した安全な場所で操作してください。予報・交通・催事情報は参考情報です。駐停車や営業区域の規制を遵守し、最新情報を公式サイトで確認してください。</p></details></section>
+  <section class="weather-strip" aria-label="気象庁の天気と強雨情報">
+    <a class="weather-summary" href="https://www.jma.go.jp/bosai/forecast/#area_type=offices&area_code=370000" target="_blank" rel="noopener noreferrer" title="香川県の天気予報"><span id="wxEmoji" class="weather-emoji" aria-label="天気取得中">—</span><strong id="wxMain">取得中…</strong></a>
+    <div class="rain-status" id="rainBox"><span id="rainAlert" class="rain-label">強雨確認中</span><details class="rain-details"><summary aria-label="強雨の詳細">▼</summary><div class="rain-popup"><span id="rainDetail">気象庁の雨雲情報を確認中です。</span><a target="_blank" rel="noopener noreferrer" href="https://www.jma.go.jp/bosai/nowc/#zoom:9/lat:34.34/lon:134.05/colordepth:normal/elements:hrpns&slmcs">雨雲の動き</a><span>高松中心部と約6km圏の参考判定です。</span></div></details></div>
+    <button id="refreshWeather" class="refresh-weather" type="button">更新</button>
+  </section>
+  <div class="install-line"><button id="installTop" hidden>＋ ホームに追加</button><p id="installGuide" hidden></p></div>
+  <section class="x-card" aria-label="Xでの交通確認"><div class="x-card-heading"><strong>Xで交通確認</strong><details><summary>戻り方</summary><p>リンク先から戻れない場合はスマホの戻るボタンを押すか、このアプリを再度開いてください。</p></details></div><div class="x-links"><a href="https://x.com/KSBNews_5ch" target="_blank" rel="noopener noreferrer">📰 ニュース</a><a href="https://x.com/iHighwayShikoku" target="_blank" rel="noopener noreferrer">🛣️ 高速道路</a></div></section>
+  <section class="traffic-card" aria-label="高松・坂出・瀬戸大橋・児島の道路情報"><div class="traffic-head"><strong>高松周辺の道路情報</strong><small id="trafficStamp"></small><button id="trafficRefresh">更新</button></div><p id="trafficStatus" role="status" aria-live="polite">交通情報を取得中…</p><details id="trafficDetails"><summary>場所・詳細</summary><ul id="trafficList"><li>取得結果を確認中です。</li></ul></details></section>
+  <nav class="tabs" aria-label="機能" role="tablist"><button class="tab" data-tab="dash" aria-selected="true" role="tab">今日</button><button class="tab" data-tab="events" aria-selected="false" role="tab">イベント</button><button class="tab" data-tab="sources" aria-selected="false" role="tab">情報源</button></nav>
+
+  <section class="tabview" id="view-dash" role="tabpanel"><div class="date-pills" aria-label="注目イベントの期間"><button data-focus="today" aria-pressed="true">今日</button><button data-focus="tomorrow" aria-pressed="false">明日</button><button data-focus="week" aria-pressed="false">今後7日</button></div><div id="focusCards" class="event-list"><p class="empty">イベント情報を取得中…</p></div><h2 class="small-heading">確認先</h2><div class="sourcegrid" id="sourceQuick"></div></section>
+
+  <section class="tabview" id="view-events" role="tabpanel" hidden>
+    <div class="toolbar"><button id="refreshEvents">イベント更新</button></div>
+    <section class="event-filter">
+      <div class="date-pills date-pills-four" aria-label="表示期間"><button data-range="today" aria-pressed="false">今日</button><button data-range="tomorrow" aria-pressed="false">明日</button><button data-range="week" aria-pressed="true">今後7日</button><button data-range="all" aria-pressed="false">すべて</button></div>
+      <div class="filter-grid"><label>会場<select id="venueFilter"><option value="all">すべての会場</option></select></label><label>規模<select id="tierFilter"><option value="all">すべて</option><option value="large">大規模</option><option value="medium">中規模</option><option value="small">小規模</option><option value="limited">関係者向け</option><option value="unknown">規模不明</option></select></label></div>
+      <details class="data-status"><summary>取得状況</summary><p id="eventsStatus">データを取得中…</p></details>
+    </section>
+    <div id="autoEventList" class="event-list"><p class="empty">イベント情報を取得中…</p></div><button id="eventMore" class="wide-button" hidden>さらに30件を表示</button>
+    <div class="edit-actions"><button id="newManual">＋ イベントを登録</button></div>
+    <details class="more-section"><summary>公開大会・本人登録・バックアップ</summary><div class="section-inside"><label class="inline-label">会場名・イベント名で検索<input id="convVenue" placeholder="クレメント、パールガーデンなど"></label><div id="convList"></div><button id="convMore">さらに表示</button><div class="action-row"><button id="exportFixes">登録・補正をバックアップ</button><button id="importFixes">バックアップを読み込み</button><input id="fixesFile" type="file" accept=".json,application/json" hidden></div></div></details>
+    <details class="more-section"><summary>交通・運行情報の個人メモ</summary><div class="section-inside"><form id="memoForm"><label>種類<select id="evType"><option value="event">イベント</option><option value="rail">鉄道</option><option value="flight">空港</option><option value="port">船舶</option><option value="road">道路</option><option value="other">その他</option></select></label><label>対象地区<select id="evZone"></select></label><label>内容<input id="evTitle" maxlength="72" required></label><label>発生・終了予定日時<input id="evAt" type="datetime-local" required></label><label>規模<select id="evSize"><option value="small">小・不明</option><option value="medium">中</option><option value="large">大</option></select></label><label>情報源URL（任意）<input id="evLink" type="url"></label><label>備考<textarea id="evNote" maxlength="300"></textarea></label><button type="submit">この端末にメモ</button></form><div id="memoList"></div><div class="action-row"><button id="exportEvents">メモを書き出し</button><button id="importEvents">メモを読み込み</button><input id="importFile" type="file" accept=".json,application/json" hidden></div></div></details>
+  </section>
+
+  <section class="tabview" id="view-sources" role="tabpanel" hidden><div id="sourceAll" class="sourcegrid"></div><details class="more-section"><summary>自動取得の範囲と注意点</summary><p>天気は気象庁の予報をCloudflare Worker経由で取得します。強雨は気象庁雨雲画像から参考判定し、交通はTomTom情報から取得します。イベントはGitHub Actionsで公開データを収集します。規模区分は参考値で、タクシー需要を保証しません。施設のページ変更や通信障害で取得できないことがあります。</p></details></section>
+</main>
+<footer class="page footer">高松タクシー・シグナル v1.0 試験版（単一HTML）｜<a href="https://www.jma.go.jp/bosai/forecast/" target="_blank" rel="noopener noreferrer">気象庁</a>｜運転中の操作禁止</footer>
+
+<dialog id="eventDialog"><form id="editForm" method="dialog"><h2 id="editHeading">イベント登録</h2><p id="editSource"></p><label>イベント名<input id="editName" maxlength="120" required></label><label>会場<input id="editVenue" maxlength="160" required></label><div class="form-grid"><label>開始日<input id="editDay" type="date" required></label><label>終了日<input id="editEndDay" type="date"></label><label>開始時間<input id="editStart" type="time"></label><label>終了時間<input id="editEnd" type="time"></label></div><label>参加予定人数（任意）<input id="editCount" type="number" min="0" max="100000"></label><label>規模<select id="editTier"><option value="auto">自動判定</option><option value="large">大規模</option><option value="medium">中規模</option><option value="small">小規模</option><option value="limited">関係者向け</option><option value="unknown">規模不明</option></select></label><label>確認状況<select id="editConfidence"><option value="unverified">未確認</option><option value="confirmed">本人確認済み</option></select></label><label>自分用メモ<textarea id="editComment" maxlength="300"></textarea></label><div class="dialog-actions"><button type="button" id="editCancel">戻る</button><button type="button" id="editRestore" hidden>補正を解除</button><button type="button" id="editRemove" hidden>削除</button><button type="submit" id="editSave">保存</button></div></form></dialog>
+<script>
+// --- config.js ---
+/** 設定値はここに集約。秘密鍵はブラウザに置かない。 */
+const APP_VERSION = '1.0.0-preview.1';
+const JST = 'Asia/Tokyo';
+// 試験版は別のGitHub Pagesリポジトリに置き、現行版の公開データを読む。
+// 本番への切替時のみ data-data-base を ./data/ に変更する。
+const DATA_BASE = document.documentElement?.dataset?.dataBase || '../data/';
+const ENDPOINTS = Object.freeze({
+  weather: 'https://takamatsu-weather-proxy.shikishimanipponn5.workers.dev/forecast',
+  traffic: 'https://takamatsu-traffic-proxy.shikishimanipponn5.workers.dev/api/v1/traffic',
+  nowcast: 'https://www.jma.go.jp/bosai/jmatile/data/nowc/',
+  events: DATA_BASE+'events.json',
+  gyms: DATA_BASE+'gym_events.json',
+  conventions: DATA_BASE+'conventions.json',
+  rexam: DATA_BASE+'rexam_events.json'
+});
+const SOURCE_LINKS = [
+  {name:'高松の天気予報',icon:'☀️',url:'https://www.jma.go.jp/bosai/forecast/#area_type=offices&area_code=370000',quick:true},
+  {name:'気象庁・雨雲の動き',icon:'🌧️',url:'https://www.jma.go.jp/bosai/nowc/#zoom:9/lat:34.34/lon:134.05/colordepth:normal/elements:hrpns&slmcs',quick:true},
+  {name:'香川県 鉄道運行情報',icon:'🚆',url:'https://transit.yahoo.co.jp/diainfo/pref/37',quick:true},
+  {name:'ことでん 運行情報',icon:'🚆',url:'https://www.kotoden.co.jp/publichtm/i-mode/unkou/densya.htm'},
+  {name:'高松空港 フライト情報',icon:'✈️',url:'https://takamatsu-airport.com/flight-info.php',quick:true},
+  {name:'高松空港 時刻表',icon:'✈️',url:'https://www.takamatsu-airport.com/timetable/'},
+  {name:'あなぶきアリーナ香川',icon:'🏟️',url:'https://kagawa-arena.com/event/',quick:true},
+  {name:'高松観光コンベンション・ビューロー',icon:'🏢',url:'https://takamatsu.or.jp/calendar/'},
+  {name:'サンポートホール高松',icon:'🏛️',url:'https://www.sunport-hall.jp/hall/',quick:true},
+  {name:'サンメッセ香川',icon:'🏢',url:'https://www.sunmesse.com/event/'},
+  {name:'高松市スポーツ施設の行事予定',icon:'🏟️',url:'https://www.taka-spo.or.jp/schedule.html'},
+  {name:'高松市 イベントカレンダー',icon:'📅',url:'https://www.city.takamatsu.kagawa.jp/event/calendar/calendar.html'},
+  {name:'香川県 クルーズ船入港',icon:'🚢',url:'https://www.pref.kagawa.lg.jp/kouryu/cruise/jisseki.html'},
+  {name:'香川県 道路通行規制',icon:'🚧',url:'https://dourokisei.pref.kagawa.lg.jp/',quick:true},
+  {name:'香川県 高速道路情報',icon:'🛣️',url:'https://roadway.yahoo.co.jp/traffic/pref/37/list'},
+  {name:'瀬戸中央道 交通情報',icon:'🛣️',url:'https://roadway.yahoo.co.jp/traffic/road/3160010/map'}
+];
+const VENUE_LIMIT = 30;
+const STORAGE_KEYS = Object.freeze({
+  manual:'taxi-v06-personal', overrides:'taxi-v06-overrides', memo:'takamatsu-taxi-memos-v01', theme:'taxi-signal-theme-v07l'
+});
+const ZONES = [
+  {id:'station',name:'高松駅・サンポート'}, {id:'downtown',name:'高松中心部'},
+  {id:'arena',name:'あなぶきアリーナ周辺'}, {id:'kawaramachi',name:'瓦町周辺'},
+  {id:'ritsurin',name:'栗林周辺'}, {id:'busshozan',name:'仏生山周辺'},
+  {id:'yashima',name:'屋島・潟元周辺'}, {id:'airport',name:'高松空港周辺'},
+  {id:'sunmesse',name:'サンメッセ香川周辺'}, {id:'other',name:'その他'}
+];
+
+// --- helpers.js ---
+
+const $ = id => document.getElementById(id);
+const escapeHTML = v => String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function jstDateKey(date = new Date()) {
+  const p = new Intl.DateTimeFormat('en-US',{timeZone:JST,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(date instanceof Date?date:new Date(date));
+  const o=Object.fromEntries(p.map(x=>[x.type,x.value]));return `${o.year}-${o.month}-${o.day}`;
+}
+function addDays(day,n){const d=new Date(day+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)}
+function jstClock(t=new Date()){return new Intl.DateTimeFormat('ja-JP',{timeZone:JST,hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(t)}
+function shortTime(iso){const ms=typeof iso==='number'?iso:Date.parse(iso);return Number.isFinite(ms)?jstClock(new Date(ms)):'時刻未公表'}
+function toJstLocalInput(ms=Date.now()){return new Intl.DateTimeFormat('sv-SE',{timeZone:JST,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(ms)).replace(' ','T')}
+function toJstISOString(day,time){return day&&time?`${day}T${time}:00+09:00`:null}
+function isHttpsURL(s){try {let u=new URL(s);return u.protocol==='https:';}catch{return false}}
+function safeURL(s){return typeof s==='string'&&isHttpsURL(s)?s:''}
+async function fetchJSON(url,{timeout=15000}={}){
+  const ctl=new AbortController(), t=setTimeout(()=>ctl.abort(),timeout);
+  try{const response=await fetch(url,{cache:'no-store',credentials:'omit',signal:ctl.signal});if(!response.ok)throw new Error('HTTP '+response.status);return await response.json()}finally{clearTimeout(t)}
+}
+function downloadJSON(filename,data){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),5000)}
+function text(el,s){if(el&&el.textContent!==s)el.textContent=s}
+
+const esc = escapeHTML; // import alias used by UI and app
+// --- storage.js ---
+/** v0.7の localStorage キーとバックアップ形式を継承する。 */
+
+
+// 同一 github.io オリジンでも試験版の操作が本番の登録・補正・メモを上書きしない。
+const PREVIEW = document.documentElement?.dataset?.stage !== 'production';
+const previewKey = key => PREVIEW ? 'ts-v1-preview:'+key : key;
+function readJSON(key,otherwise){try{const raw=localStorage.getItem(previewKey(key)) || (PREVIEW ? localStorage.getItem(key) : null);return raw===null?otherwise:(JSON.parse(raw)??otherwise)}catch{return otherwise}}
+function validManual(m){return !!(m&&typeof m.id==='string'&&/^manual-[a-zA-Z0-9-]{1,100}$/.test(m.id)&&typeof m.title==='string'&&m.title.length<=120&&typeof m.venue==='string'&&m.venue.length<=160&&/^20\d{2}-\d{2}-\d{2}$/.test(m.date||''));}
+function cleanOverrides(obj){const out={};if(!obj||typeof obj!=='object'||Array.isArray(obj))return out;for(const [key,val] of Object.entries(obj).slice(0,250)){if(!/^(?:convention-[a-f0-9]{16}|[a-zA-Z0-9-]{3,100})$/.test(key)||!val||typeof val!=='object'||Array.isArray(val))continue;if(typeof val.title!=='string'||val.title.length>120||typeof val.venue!=='string'||val.venue.length>160||!/^20\d{2}-\d{2}-\d{2}$/.test(val.date||''))continue;out[key]={title:val.title,venue:val.venue,date:val.date,endDate:val.endDate||val.date,startAt:typeof val.startAt==='string'?val.startAt:null,endAt:typeof val.endAt==='string'?val.endAt:null,participants:Number.isInteger(val.participants)&&val.participants>=0&&val.participants<=100000?val.participants:null,scaleOverride:['auto','large','medium','small','limited','unknown'].includes(val.scaleOverride)?val.scaleOverride:'auto',confidence:['confirmed','unverified'].includes(val.confidence)?val.confidence:'unverified',personalNote:String(val.personalNote||'').slice(0,300)};}return out;}
+function readUserData(){const manual=readJSON(STORAGE_KEYS.manual,[]), overrides=readJSON(STORAGE_KEYS.overrides,{}),memos=readJSON(STORAGE_KEYS.memo,[]);return {manual:Array.isArray(manual)?manual.filter(validManual).slice(0,150):[],overrides:cleanOverrides(overrides),memos:Array.isArray(memos)?memos.filter(m=>m&&typeof m.id==='string'&&typeof m.title==='string'&&m.title.length<=72&&typeof m.at==='string'&&Number.isFinite(Date.parse(m.at))).slice(0,120):[]}}
+function saveUserData({manual,overrides,memos}){try{localStorage.setItem(previewKey(STORAGE_KEYS.manual),JSON.stringify(manual));localStorage.setItem(previewKey(STORAGE_KEYS.overrides),JSON.stringify(overrides));if(memos)localStorage.setItem(previewKey(STORAGE_KEYS.memo),JSON.stringify(memos));return true}catch{return false}}
+function exportEdits(data){downloadJSON('takamatsu_taxi_edits_v06.json',{schema:1,kind:'taxi-user-edits',manual:data.manual,overrides:data.overrides});}
+function importEdits(parsed){if(parsed?.schema!==1||parsed?.kind!=='taxi-user-edits'||!Array.isArray(parsed.manual)||parsed.manual.length>150||parsed.manual.some(m=>!validManual(m))||!parsed.overrides||typeof parsed.overrides!=='object'||Object.keys(parsed.overrides).length>250)throw Error('従来形式ではありません');return{manual:parsed.manual,overrides:cleanOverrides(parsed.overrides)}}
+
+// --- venues.js ---
+/** 施設名統合と選択欄表示のルールはこのファイルだけ。 */
+const normalized = s => String(s||'').normalize('NFKC').replace(/[\s\u3000]/g,'').trim();
+const GROUPS = [
+  ['あなぶきアリーナ香川',/あなぶきアリーナ香川|香川県立アリーナ/],
+  ['サンポートホール高松',/サンポートホール/],
+  ['かがわ国際会議場',/かがわ国際会議場|かがわ国債会議場|香川国際会議場|香川県国際会議場/],
+  ['JRホテルクレメント高松',/JRホテルクレメント高松|ホテルクレメント高松/],
+  ['レクザムホール',/レクザムホール|レグザムホール|香川県県民ホール|香川県民ホール/],
+  ['高松市総合体育館',/高松市総合体育館/],['香川総合体育館',/香川総合体育館/],
+  ['仏生山公園体育館',/仏生山公園体育館/],['国分寺橘ノ丘総合運動公園',/国分寺橘ノ丘総合運動公園/],
+  ['西部運動センター',/西部運動センター/],['かわなべスポーツセンター',/かわなべスポーツセンター/],
+  ['東部運動公園',/東部運動公園/],['亀水運動センター',/亀水運動センター/],
+  ['りんくうスポーツ公園',/りんくうスポーツ公園/],['牟礼総合体育館',/牟礼総合体育館/],
+  ['香南体育館',/香南体育館/],['ホタルと文化の里運動場',/ホタルと文化の里運動場/],
+  ['牟礼中央公園運動センター',/牟礼中央公園運動センター/],
+  ['ホテルパールガーデン',/ホテルパールガーデン/]
+];
+const SCHOOL=/幼稚園|保育園|保育所|認定こども園|こども園|小学校|中学校|高等学校|高校|中等教育学校|義務教育学校|特別支援学校|大学|短期大学|高専|専門学校/;
+function venueKey(v){const n=normalized(v);if(SCHOOL.test(n))return '学校等';for(const [name,re] of GROUPS)if(re.test(n))return name;return venueLabel(v);}
+const ABSTRACT=/^(?:不明|未公表|未定|会場未公表|会場不明|会場未定|開催場所未定|開催場所不明|場所未公表|場所不明|会場非公開|調整中|未設定|未指定|市内ホテル|高松市内ホテル|市内各ホテル|県内ホテル|市内各所|香川県内|県内各所|会場複数|その他|高松市|市内ホテル等)$/u;
+const LOCALE='(?:高松市|綾川町|丸亀市|坂出市|さぬき市|三木町|宇多津町|観音寺市|三豊市|善通寺市|東かがわ市|土庄町|小豆島町|直島町|琴平町|多度津町|まんのう町)';
+const MULTI=new RegExp('^'+LOCALE+'(?:[、,，・／/]|及び|および|と)'+LOCALE+'(?:(?:[、,，・／/]|及び|および|と)'+LOCALE+')*$','u');
+function selectableVenue(v){let n=normalized(v);return !!n&&!ABSTRACT.test(n)&&!MULTI.test(n)}
+function venueLabel(v){return String(v||'').replace(/[\s\u3000]*(?:[、,，・／/]?[\s\u3000]*)ほか(?:[\s\u3000]*\d+か所)?[\s\u3000]*$/u,'').trim()}
+const priority=new Map([
+  ['あなぶきアリーナ香川',10],['サンポートホール高松',20],['かがわ国際会議場',30],
+  ['JRホテルクレメント高松',40],['レクザムホール',50],['亀水運動センター',110],
+  ['ホテルパールガーデン',120],['高松市総合体育館',130],['東部運動公園',170],
+  ['牟礼総合体育館',210],['牟礼中央公園運動センター',240],['西部運動センター',380],
+  ['かわなべスポーツセンター',480],['仏生山公園体育館',570],['国分寺橘ノ丘総合運動公園',650],
+  ['香川総合体育館',730],['香南体育館',790],['りんくうスポーツ公園',810],
+  ['ホタルと文化の里運動場',890],['学校等',900]
+]);
+const OUTLYING=/土庄町|小豆島町|丸亀市|坂出市|宇多津町|善通寺市|観音寺市|三豊市|さぬき市|東かがわ市|綾川町|三木町|琴平町|多度津町|まんのう町|直島町|女木島|男木島|小豆島|豊島|本島|与島|櫃石島|岩黒島|岡山市|倉敷市|児島|香川県外|離島/;
+function venueRank(v){const n=normalized(v);if(OUTLYING.test(n))return 10000;if(priority.has(v))return priority.get(v);if(/サンポート|浜ノ町|高松駅|高松港|高松シンボルタワー/.test(n))return 75;if(/朝日町|福岡町|城東町|松福町|瀬戸内町|新北町|番町|錦町/.test(n))return 140;if(/屋島|牟礼|高松町/.test(n))return 250;if(/瓦町|丸亀町|田町|栗林|中央町|亀岡町|天神前|亀井町/.test(n))return 320;if(/円座|鬼無|香西|木太|林町|多肥|上林/.test(n))return 460;if(/国分寺|仏生山|川部町|一宮|三谷町/.test(n))return 670;if(/香南|香川町|空港|塩江/.test(n))return 850;return 500}
+function venueOptions(events){return [...new Set(events.map(e=>venueKey(e.venue)).filter(selectableVenue))].sort((a,b)=>venueRank(a)-venueRank(b)||a.localeCompare(b,'ja'))}
+function venueIcon(v){let s=String(v||'');if(/ホテル|旅館|宿泊|クレメント|パールガーデン|リーガ|ロイヤルパーク/.test(s))return '🏨';if(/アリーナ|体育館|スポーツセンター|運動センター|球場|グラウンド|運動公園|競技場/.test(s))return '🏟️';if(/ホール|劇場|文化センター|国際会議場|会館/.test(s))return '🏛️';if(SCHOOL.test(s))return '🏫';if(/病院|医療/.test(s))return '🏥';if(/サンメッセ|コンベンション|会議場|展示場/.test(s))return '🏢';if(/港|フェリー/.test(s))return '🚢';return '📍';}
+
+// --- events.js ---
+/** 公式イベントを読み込み、本人データを重ねる。重複判定は慎重に行う。 */
+
+
+
+const TYPE={events:'venue',gyms:'gym',conventions:'convention',rexam:'rexam'};
+const MAX={events:350,gyms:800,conventions:700,rexam:500};
+function validEvent(e){return !!(e&&typeof e.id==='string'&&e.id.length<=130&&typeof e.title==='string'&&e.title.length>0&&e.title.length<=150&&typeof e.venue==='string'&&e.venue.length<=200&&/^20\d{2}-\d{2}-\d{2}$/.test(e.date||'')&&(!e.endDate||/^20\d{2}-\d{2}-\d{2}$/.test(e.endDate)))}
+async function loadOfficialEvents(onUpdate=()=>{}) {
+  const data={events:[],errors:[],sources:[],updatedAt:null};
+  await Promise.all(Object.entries(TYPE).map(async ([key,type])=>{
+    try{
+      const d=await fetchJSON(ENDPOINTS[key]+'?v='+Date.now(),{timeout:16000});
+      if(d.schema!==1||!Array.isArray(d.events)||d.events.length>MAX[key])throw Error('データ形式不正');
+      const valid=d.events.filter(validEvent);
+      if(valid.length!==d.events.length)throw Error('イベント項目の形式不正');
+      data.events.push(...valid.map(e=>({...e,sourceType:type,zone:e.zone||'station'})));
+      data.sources.push({name:key,status:d.status||'ok',count:valid.length,updatedAt:d.updatedAt||null});
+      if(d.updatedAt && (!data.updatedAt||d.updatedAt>data.updatedAt)) data.updatedAt=d.updatedAt;
+    }catch(err){data.errors.push({name:key,message:err.message});data.sources.push({name:key,status:'error',count:0})}
+    onUpdate({...data,events:[...data.events]});
+  }));
+  return data;
+}
+const normalizedTitle = s=>String(s||'').normalize('NFKC').toLowerCase().replace(/[\s\u3000「」『』・･、。，,.:：;；!！?？()（）\[\]【】\-―－_]/g,'');
+const normalizedVenue = s=>String(s||'').normalize('NFKC').replace(/[\s\u3000]/g,'').replace(/（[^）]*）$/,'').replace(/\([^)]*\)$/,'');
+function deduplicateEvents(rows){
+  const groups=new Map(),out=[];
+  const quality=e=>(e.wasEdited?1000:0)+(e.startAt?20:0)+(e.endAt?20:0)+(e.doorAt?7:0)+(e.participants!=null?8:0)+(e.sourceType==='rexam'?3:0);
+  for(const row of rows){if(!validEvent(row))continue;
+    const key=normalizedVenue(row.venue)+'|'+normalizedTitle(row.title);
+    const peers=groups.get(key)||[];const match=peers.find(x=>x.sourceType!==row.sourceType&&x.sourceType!=='manual'&&row.sourceType!=='manual'&&(x.date<=(row.endDate||row.date))&&(row.date<=(x.endDate||x.date))&&(!x.startAt||!row.startAt||x.startAt===row.startAt)&&(!x.endAt||!row.endAt||x.endAt===row.endAt));
+    if(match){if(quality(row)>quality(match)){out[out.indexOf(match)]=row;peers[peers.indexOf(match)]=row;}}
+    else{out.push(row);peers.push(row)}groups.set(key,peers);
+  }return out;
+}
+function combinedEvents(official,manual,overrides){return deduplicateEvents([...official,...manual].map(e=>overrides[e.id]?{...e,...overrides[e.id],wasEdited:true}:e));}
+function periodEvents(events,range,now=jstDateKey()){
+  const tomorrow=addDays(now,1),lastWeek=addDays(now,6);
+  return events.filter(e=>{const end=e.endDate||e.date;if(range==='today')return e.date<=now&&end>=now;if(range==='tomorrow')return e.date<=tomorrow&&end>=tomorrow;if(range==='week')return e.date<=lastWeek&&end>=now;return end>=now;});
+}
+function eventSort(a,b){return a.date.localeCompare(b.date)||(a.startAt||'').localeCompare(b.startAt||'')||a.title.localeCompare(b.title,'ja')}
+function scaleEstimate(e){
+  const forced=e.scaleOverride;
+  const labels={large:'大規模',medium:'中規模',small:'小規模',limited:'関係者向け',unknown:'規模不明'};
+  if(forced&&forced!=='auto'&&labels[forced])return{key:forced,label:labels[forced],reason:'本人が指定した参考分類'};
+  if(e.sourceType==='gym')return{key:'unknown',label:'規模不明',reason:'スポーツ施設の月間予定に人数がないため未推定'};
+  if(Number.isInteger(e.participants)&&e.participants>=0){let n=e.participants;let k=n>=1000?'large':n>=300?'medium':'small';return{key:k,label:labels[k],reason:'公開された参加予定人数による参考分類'};}
+  const title=String(e.title||'').normalize('NFKC').toLowerCase(), note=String(e.note||'').normalize('NFKC').toLowerCase();
+  if(/関係者のみ|一般来場不可|関係者限定|招待者のみ|関係者対象/.test(note))return{key:'limited',label:labels.limited,reason:'一般来場が制限されるイベント'};
+  if(venueKey(e.venue)==='あなぶきアリーナ香川'&&/コンサート|ライブ|ツアー|リーグ|basketball|試合|全国大会|音楽フェス|公演/.test(title))return{key:'large',label:labels.large,reason:'アリーナ公演・試合による参考分類'};
+  if(/小ホール|小会議室|会議室|練習室/.test(note))return{key:'small',label:labels.small,reason:'会場の種類による参考分類'};
+  if(/大ホール/.test(note))return{key:'medium',label:labels.medium,reason:'会場の種類による参考分類'};
+  return{key:'unknown',label:labels.unknown,reason:'推定に必要な情報が不足'};
+}
+function focusEvents(rows,range,now=jstDateKey()){
+  return periodEvents(rows,range,now).filter(e=>e.date!==now||!e.endAt||Date.parse(e.endAt)+30*60000>=Date.now()).sort((a,b)=>{
+    const order={large:0,medium:1,small:2,unknown:3,limited:4};return a.date.localeCompare(b.date)||(order[scaleEstimate(a).key]-order[scaleEstimate(b).key])||eventSort(a,b)
+  }).slice(0,4);
+}
+
+// --- weather.js ---
+
+
+function weatherEmoji(d){let code=Number(d.weatherCode),desc=String(d.weatherText||'');if(/雷/.test(desc))return '⛈️';if(/雪/.test(desc)||Math.floor(code/100)===4)return '🌨️';if(/雨/.test(desc)||Math.floor(code/100)===3)return '🌧️';if(/晴/.test(desc)&&/曇|くもり/.test(desc))return '🌤️';if(Math.floor(code/100)===2||/曇|くもり/.test(desc)&&!/晴/.test(desc))return '☁️';if(Math.floor(code/100)===1||/晴/.test(desc))return '☀️';return '🌤️'}
+async function getForecast(){const d=await fetchJSON(ENDPOINTS.weather,{timeout:14000});if(d.status!=='ok'||!/^[0-9]{3}$/.test(String(d.weatherCode||'')))throw Error('気象庁データの形式不一致');if(d.issuedAt&&Date.now()-Date.parse(d.issuedAt)>12*3600000)throw Error('気象庁の予報が古い');return d;}
+function formatForecast(d){const hi=Number.isFinite(d.forecastHighC)?d.forecastHighC+'℃':null,low=Number.isFinite(d.forecastLowC)?d.forecastLowC+'℃':null,p=Number.isFinite(d.precipitationProbability)?d.precipitationProbability+'%':'';return [hi?hi+(low?'/'+low:''):'気温未発表',p].filter(Boolean).join(' ')}
+
+// --- nowcast.js ---
+/** 気象庁の高解像度ナウキャスト画像から高松駅周辺の参考状態を判定。
+ * 元アプリの判定範囲と閾値を引き継ぐ。画像の色や仕様は変更される可能性がある。
+ */
+
+
+const BASE=ENDPOINTS.nowcast,LAT=34.352,LON=134.047,Z=9;
+const PALETTE=new Map([['242,242,255',1],['160,210,255',2],['33,140,255',3],['0,65,255',4],['250,245,0',5],['255,153,0',6],['255,40,0',7],['180,0,104',8]]);
+function pixels(){const size=256*2**Z,rad=LAT*Math.PI/180,xOf=lon=>(lon+180)/360*size,yOf=lat=>(1-Math.asinh(Math.tan(lat*Math.PI/180))/Math.PI)/2*size;const latDelta=6.3/111.2,lonDelta=6.3/(111.2*Math.cos(rad));const west=Math.floor(xOf(LON-lonDelta)),east=Math.ceil(xOf(LON+lonDelta)),north=Math.floor(yOf(LAT+latDelta)),south=Math.ceil(yOf(LAT-latDelta));const groups=new Map();for(let y=north;y<=south;y++){const lat=Math.atan(Math.sinh(Math.PI*(1-2*(y+.5)/size)))*180/Math.PI;for(let x=west;x<=east;x++){const lon=(x+.5)/size*360-180,dx=(lon-LON)*111.2*Math.cos(rad),dy=(lat-LAT)*111.2,dist=Math.hypot(dx,dy);if(dist>6)continue;const tx=Math.floor(x/256),ty=Math.floor(y/256),key=tx+'/'+ty;if(!groups.has(key))groups.set(key,{tx,ty,points:[]});groups.get(key).points.push({x:x%256,y:y%256,center:dist<=1.5});}}return [...groups.values()];}
+const TILES=pixels();
+function stamp(s){if(!/^20\d{12}$/.test(s))throw Error('解析時刻が不正');return Date.UTC(+s.slice(0,4),+s.slice(4,6)-1,+s.slice(6,8),+s.slice(8,10),+s.slice(10,12),+s.slice(12,14));}
+async function targetTimes(file,signal){const r=await fetch(BASE+file,{cache:'no-store',signal});if(!r.ok)throw Error('時刻一覧取得失敗');const d=await r.json();if(!Array.isArray(d))throw Error('時刻一覧の形式不正');return d.filter(x=>x&&typeof x.basetime==='string'&&typeof x.validtime==='string'&&x.elements?.includes('hrpns'))}
+async function tilePixels(url,signal){const r=await fetch(url,{cache:'force-cache',signal});if(!r.ok)throw Error('雨雲画像取得失敗');const blob=await r.blob();if(blob.size<50||blob.size>1000000)throw Error('画像サイズ不正');const bmp=await createImageBitmap(blob);if(bmp.width!==256||bmp.height!==256){bmp.close();throw Error('画像寸法不正')}const cv=document.createElement('canvas');cv.width=cv.height=256;const ctx=cv.getContext('2d',{willReadFrequently:true});if(!ctx){bmp.close();throw Error('画像解析ができない')}ctx.drawImage(bmp,0,0);bmp.close();return ctx.getImageData(0,0,256,256).data;}
+async function frame(entry,signal){const entries=await Promise.all(TILES.map(async tile=>({tile,data:await tilePixels(`${BASE}${entry.basetime}/none/${entry.validtime}/surf/hrpns/${Z}/${tile.tx}/${tile.ty}.png`,signal)})));let center=0,around=0;for(const {tile,data} of entries){for(const p of tile.points){const i=(p.y*256+p.x)*4;if(data[i+3]===0)continue;const k=`${data[i]},${data[i+1]},${data[i+2]}`,v=PALETTE.get(k);if(v===undefined)throw Error('未対応の降水色');if(p.center)center=Math.max(center,v);else around=Math.max(around,v);}}return{center,around}}
+let pending=false;
+async function getNowcast(){if(pending)return null;pending=true;const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),25000);try{const [a,b]=await Promise.all([targetTimes('targetTimes_N1.json',ctl.signal),targetTimes('targetTimes_N2.json',ctl.signal)]);const now=Date.now();const analyses=a.map(x=>({data:x,t:stamp(x.validtime)})).filter(x=>x.t<=now+120000).sort((x,y)=>y.t-x.t);if(!analyses.length||now-analyses[0].t>20*60000)throw Error('実況データが古い');const forecasts=b.map(x=>({data:x,t:stamp(x.validtime),base:stamp(x.basetime)})).filter(x=>x.t>now&&x.t<=now+31*60000&&Math.abs(x.base-analyses[0].t)<=15*60000).sort((x,y)=>x.t-y.t);if(!forecasts.length)throw Error('予報データなし');const unique=forecasts.filter((x,i,arr)=>arr.findIndex(y=>y.data.validtime===x.data.validtime)===i).slice(0,7);const cur=await frame(analyses[0].data,ctl.signal);const predicted=[];for(const f of unique)predicted.push({t:f.t,d:await frame(f.data,ctl.signal)});const ts=jstClock(new Date(analyses[0].t)),strong=6;let status='強雨なし',detail=`気象庁 ${ts}解析／高松駅中心1.5km・周辺6km／約30分先まで`;if(cur.center>=strong){status='強雨発生';detail=`中心約1.5kmで強雨域を検出（${ts}解析）`;}else if(predicted.some(x=>x.d.center>=strong)){const x=predicted.find(y=>y.d.center>=strong);status='強雨接近';detail=`中心部へ約${Math.max(5,Math.round((x.t-now)/300000)*5)}分後に接近の予測`;}else if(cur.around>=strong){status='周辺強雨';detail=`約6km圏内に強雨域（${ts}解析）`;}else if(predicted.some(x=>x.d.around>=strong)){status='周辺予測';detail='約6km圏内に今後30分の強雨予測';}return{status,detail,level:status==='強雨発生'||status==='強雨接近'?'danger':status.startsWith('周辺')?'caution':'clear'};
+}finally{clearTimeout(timer);pending=false}}
+
+// --- traffic.js ---
+/** Cloudflare/TomTom proxy の契約を変更せず表示を分離する。 */
+
+
+const LABELS={accident:'事故',roadClosed:'通行止め',jam:'渋滞',roadWorks:'工事',other:'その他'};
+function checkTraffic(d){if(d?.status!=='ok'||d.schemaVersion!==1||!Array.isArray(d.incidents)||!Number.isInteger(d.total)||d.total<0||!d.counts||Object.keys(LABELS).some(k=>!Number.isInteger(d.counts[k])||d.counts[k]<0)||Object.values(d.counts).reduce((a,b)=>a+b,0)!==d.total)throw Error('交通情報の形式不一致');const age=Date.now()-Date.parse(d.updatedAt);if(!Number.isFinite(age)||age<0||age>900000)throw Error('交通情報が古い');return d;}
+async function getTraffic(){const data=await fetchJSON(ENDPOINTS.traffic,{timeout:20000});return checkTraffic(data)}
+function summaryTraffic(d){return Object.entries(LABELS).filter(([k])=>d.counts[k]>0).map(([k,label])=>`${label} ${d.counts[k]}件`).join(' ／ ')||'対象範囲で交通情報なし'}
+function trafficLocation(e){const from=typeof e.from==='string'?e.from:'',to=typeof e.to==='string'?e.to:'';return[from,to].filter(Boolean).join(' → ')||'場所の詳細なし'}
+function trafficUpdated(d){return jstClock(new Date(d.updatedAt))+'取得'+(d.stale?'・更新遅延':'')}
+
+// --- ui.js ---
+/** DOM描画だけを担当。取得や保存の処理は含めない。 */
+
+
+
+
+// $ is imported from helpers.js in the modular build
+function renderSources(){
+  const card=e=>`<a class="source" href="${esc(e.url)}" target="_blank" rel="noopener noreferrer"><span class="source-icon" aria-hidden="true">${e.icon}</span><span>${esc(e.name)}</span></a>`;
+  $('sourceAll').innerHTML=SOURCE_LINKS.map(card).join('');
+  $('sourceQuick').innerHTML=SOURCE_LINKS.filter(e=>e.quick).map(card).join('');
+}
+const tierRank={large:0,medium:1,small:2,unknown:3,limited:4};
+function eventCard(e,{compact=false}={}){
+  const size=scaleEstimate(e),safe=safeURL(e.url),day=esc(e.date.replace(/-/g,'/')+((e.endDate&&e.endDate!==e.date)?' ～ '+e.endDate.replace(/-/g,'/') :''));
+  const start=e.startAt?`<span class="time-chip">開始 ${esc(shortTime(e.startAt))}</span>`:'<span class="time-muted">開始時刻未公表</span>';
+  const end=e.endAt?`<span class="time-chip">終了 ${esc(shortTime(e.endAt))}</span>`:'<span class="time-muted">終了時刻未公表</span>';
+  const venueDetails=e.venueArea?`（${esc(e.venueArea)}）`:'';
+  const timeWatch=e.endAt&&Number.isFinite(Date.parse(e.endAt))&&e.date>=jstDateKey()?`<p class="event-watch">終了前後30分：${esc(shortTime(Date.parse(e.endAt)-1800000))}〜${esc(shortTime(Date.parse(e.endAt)+1800000))}（参考）</p>`:'';
+  const extras=compact?'':`<div class="event-detail">${e.note?`<details><summary>出典・注意事項</summary><p>${esc(e.note)}</p></details>`:''}<div class="event-actions">${safe?`<a class="subbutton" href="${esc(safe)}" rel="noopener noreferrer" target="_blank">公式詳細</a>`:''}<button class="subbutton" data-edit-event="${esc(e.id)}">${e.sourceType==='manual'?'編集':'この端末で補正'}</button>${!['manual','convention','gym'].includes(e.sourceType)?`<button class="subbutton" data-prefill-event="${esc(e.id)}">時刻を確認してメモ登録</button>`:''}</div></div>`;
+  return `<article class="event-card" data-tier="${esc(size.key)}"><div class="event-lead"><span class="size-mark ${esc(size.key)}" title="${esc(size.reason)}">${esc(size.label)}</span><strong class="event-date">${day}</strong></div><div class="event-venue"><span aria-hidden="true">${venueIcon(e.venue)}</span> ${esc(e.venue)}${venueDetails}</div><div class="event-times">${e.doorAt?`<span class="time-chip">開場 ${esc(shortTime(e.doorAt))}</span>`:''}${start}${end}</div><h3>${esc((e.sourceType==='gym'?e.title.replace(/^\([月火水木金土日]\)\s*/,''):e.title))}</h3>${e.wasEdited?'<span class="tiny-tag">本人補正</span>':''}${e.sourceType==='manual'?'<span class="tiny-tag">手動登録</span>':''}${Number.isInteger(e.participants)?`<p class="event-attendance">参加予定 ${e.participants.toLocaleString('ja-JP')}人</p>`:''}${timeWatch}${extras}</article>`;
+}
+function renderFocus(rows,range){const list=focusEvents(rows,range);$('focusCards').innerHTML=list.map(e=>eventCard(e,{compact:true})).join('')||'<p class="empty">この期間のイベントは見つかりません。</p>';document.querySelectorAll('[data-focus]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.focus===range)))}
+function renderEventList(rows,{range='week',venue='all',tier='all',limit=VENUE_LIMIT}={}){
+  const select=$('venueFilter'),available=venueOptions(rows);const current=venue==='all'||available.includes(venue)?venue:'all';
+  const oldOptions=[...select.options].map(o=>o.value);const options=['all',...available];
+  if(options.join('\u0000')!==oldOptions.join('\u0000'))select.innerHTML='<option value="all">すべての会場</option>'+available.map(v=>`<option value="${esc(v)}">${esc(venueLabel(v))}</option>`).join('');
+  select.value=current;
+  let filtered=periodEvents(rows,range).filter(e=>(current==='all'||venueKey(e.venue)===current)&&(tier==='all'||scaleEstimate(e).key===tier)).sort(eventSort);
+  $('autoEventList').innerHTML=filtered.slice(0,limit).map(e=>eventCard(e)).join('')||'<p class="empty">該当するイベントはありません。期間・会場・規模を変えてください。</p>';
+  const more=$('eventMore');more.hidden=filtered.length<=limit;more.textContent=`さらに表示（残り${filtered.length-limit}件）`;
+  document.querySelectorAll('[data-range]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.range===range)));
+  return{venue:current,filtered};
+}
+function renderConventionList(rows,{query='',limit=30}={}){
+  const normalized=query.normalize('NFKC').toLowerCase();const list=rows.filter(e=>['convention','manual'].includes(e.sourceType)&&(e.endDate||e.date)>=jstDateKey()).filter(e=>!normalized||(e.venue+' '+e.title).normalize('NFKC').toLowerCase().includes(normalized)).sort(eventSort);
+  $('convList').innerHTML=list.slice(0,limit).map(e=>eventCard(e)).join('')||'<p class="empty">該当する公開大会・本人登録イベントはありません。</p>';
+  $('convMore').hidden=list.length<=limit;
+}
+function renderMemos(rows){
+  $('memoList').innerHTML=rows.length?rows.sort((a,b)=>String(a.at).localeCompare(String(b.at))).map(m=>`<article class="memo-card"><strong>${esc(m.title)}</strong><p>${esc(m.at?new Date(m.at).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'}):'日時未登録')}</p>${m.note?`<p>${esc(m.note)}</p>`:''}<div class="event-actions"><button class="subbutton" data-edit-memo="${esc(m.id)}">編集</button><button class="subbutton" data-delete-memo="${esc(m.id)}">削除</button></div></article>`).join(''):'<p class="empty">まだメモはありません。</p>';
+}
+
+// --- app.js ---
+/** 高松タクシー・シグナル v1.0 試験版（単一HTML）：初期化・操作イベントを一か所に集約。 */
+
+
+
+
+
+
+
+
+const saved=readUserData();
+const state={official:[],rows:[],manual:saved.manual,overrides:saved.overrides,memos:saved.memos,
+ focus:'today',range:'week',venue:'all',tier:'all',limit:30,convLimit:30,editingID:null,memoEditingID:null,
+ statuses:[],updatedAt:null,weatherLoading:false,trafficLoading:false,trafficLast:0,eventLoading:false,nowcastLast:0};
+
+function persist(){const ok=saveUserData(state);if(!ok)alert('端末への保存に失敗しました。ブラウザの空き容量・設定をご確認ください。');return ok;}
+function recompute(){state.rows=combinedEvents(state.official,state.manual,state.overrides);render();}
+function render(){renderFocus(state.rows,state.focus);const result=renderEventList(state.rows,state);state.venue=result.venue;renderConventionList(state.rows,{query:$('convVenue').value,limit:state.convLimit});renderMemos([...state.memos]);}
+function updateClock(){ $('clock').textContent=jstClock();}
+function setupTheme(){const themeKey=document.documentElement.dataset.stage==='production'?STORAGE_KEYS.theme:'ts-v1-preview:'+STORAGE_KEYS.theme;const savedTheme=localStorage.getItem(themeKey)||localStorage.getItem(STORAGE_KEYS.theme);const fallback=window.matchMedia?.('(prefers-color-scheme:dark)').matches?'night':'day';function setTheme(v){document.documentElement.dataset.theme=v;$('themeToggle').textContent=v==='night'?'☀ 昼':'☾ 夜';document.querySelector('meta[name="theme-color"]').setAttribute('content',v==='night'?'#183547':'#f2f6f9')}setTheme(savedTheme==='night'||savedTheme==='day'?savedTheme:fallback);$('themeToggle').addEventListener('click',()=>{const t=document.documentElement.dataset.theme==='night'?'day':'night';setTheme(t);localStorage.setItem(themeKey,t)})}
+function activate(view){for(const button of document.querySelectorAll('.tabs button'))button.setAttribute('aria-selected',String(button.dataset.tab===view));for(const section of document.querySelectorAll('.tabview'))section.hidden=section.id!=='view-'+view;window.scrollTo({top:0,behavior:'instant'});}
+
+async function updateWeather(){if(state.weatherLoading)return;state.weatherLoading=true;const btn=$('refreshWeather');btn.disabled=true;try{const d=await getForecast();$('wxEmoji').textContent=weatherEmoji(d);$('wxEmoji').setAttribute('aria-label','気象庁 '+String(d.weatherText||'天気'));$('wxMain').textContent=formatForecast(d);let text='気象庁 '+(d.weatherText||'')+'／'+(d.area||'香川県')+'／'+(d.temperaturePeriod||'');$('wxMain').title=text;}
+catch(e){$('wxEmoji').textContent='🌐';$('wxMain').textContent='天気を取得できません';console.warn('天気',e)}finally{state.weatherLoading=false;btn.disabled=false;}}
+async function updateNowcast(){if(document.hidden)return;try{const d=await getNowcast();if(!d)return;$('rainAlert').textContent=d.status;$('rainDetail').textContent=d.detail;$('rainBox').dataset.level=d.level;state.nowcastLast=Date.now();}
+catch(e){$('rainAlert').textContent='判定不能';$('rainDetail').textContent='気象庁の雨雲画像を解析できません。公式の雨雲情報をご確認ください。';$('rainBox').dataset.level='unavailable';console.warn('強雨判定',e)}}
+async function updateTraffic(force=false){if(state.trafficLoading||!force&&Date.now()-state.trafficLast<60000)return;state.trafficLoading=true;state.trafficLast=Date.now();const btn=$('trafficRefresh');btn.disabled=true;const status=$('trafficStatus'),details=$('trafficDetails'),list=$('trafficList');status.textContent='交通情報を確認中…';details.open=false;list.replaceChildren();try{const d=await getTraffic();status.textContent=summaryTraffic(d);$('trafficStamp').textContent=trafficUpdated(d);if(!d.total){const li=document.createElement('li');li.textContent='現在、対象範囲の事故・通行止め・渋滞・工事の取得情報は0件です。公式道路情報もご確認ください。';list.append(li);}else{for(const e of d.incidents){const li=document.createElement('li');li.textContent=(LABELS[e.category]||'その他')+'：'+trafficLocation(e)+(Array.isArray(e.roads)&&e.roads.length?'（'+e.roads.join('・')+'）':'')+(typeof e.description==='string'&&e.description?' — '+e.description:'');list.append(li);}if(d.truncated){const li=document.createElement('li');li.textContent='先頭100件のみ表示。';list.append(li);}}}
+catch(e){status.textContent='交通情報を取得できません。情報源タブで公式情報を確認してください。';$('trafficStamp').textContent='';const li=document.createElement('li');li.textContent='通信できないため、現在の交通障害件数は不明です。';list.append(li);console.warn('交通',e)}finally{details.hidden=false;state.trafficLoading=false;btn.disabled=false;}}
+async function updateEvents(){if(state.eventLoading)return;state.eventLoading=true;const btn=$('refreshEvents');btn.disabled=true;btn.textContent='更新中…';$('eventsStatus').textContent='公式データを取得中…';try{const data=await loadOfficialEvents(partial=>{state.official=partial.events;state.statuses=partial.sources;state.updatedAt=partial.updatedAt;recompute();});state.official=data.events;state.statuses=data.sources;state.updatedAt=data.updatedAt;recompute();const lines=data.sources.map(s=>`${s.name}: ${s.status}（${s.count}件）`);if(data.errors.length)lines.push('一部の情報源から取得できませんでした。');$('eventsStatus').textContent=lines.join('\n');}
+catch(e){$('eventsStatus').textContent='イベントデータ取得に失敗しました。'+e.message;console.warn('イベント',e)}finally{state.eventLoading=false;btn.disabled=false;btn.textContent='イベント更新';}}
+
+function setupFilters(){for(const btn of document.querySelectorAll('.tabs button'))btn.addEventListener('click',()=>activate(btn.dataset.tab));for(const b of document.querySelectorAll('[data-focus]'))b.addEventListener('click',()=>{state.focus=b.dataset.focus;renderFocus(state.rows,state.focus)});for(const b of document.querySelectorAll('[data-range]'))b.addEventListener('click',()=>{state.range=b.dataset.range;state.limit=30;render()});$('venueFilter').addEventListener('change',()=>{state.venue=$('venueFilter').value;state.limit=30;render()});$('tierFilter').addEventListener('change',()=>{state.tier=$('tierFilter').value;state.limit=30;render()});$('eventMore').addEventListener('click',()=>{state.limit+=30;render()});$('convVenue').addEventListener('input',()=>{state.convLimit=30;renderConventionList(state.rows,{query:$('convVenue').value,limit:state.convLimit})});$('convMore').addEventListener('click',()=>{state.convLimit+=30;renderConventionList(state.rows,{query:$('convVenue').value,limit:state.convLimit})});$('refreshWeather').addEventListener('click',()=>{updateWeather();updateNowcast()});$('trafficRefresh').addEventListener('click',()=>updateTraffic(true));$('refreshEvents').addEventListener('click',updateEvents);}
+function editorOpen(id=null){const e=id?state.rows.find(x=>x.id===id):null;if(id&&!e)return;state.editingID=id;const initial=e||{title:'',venue:'',date:jstDateKey(),endDate:'',startAt:null,endAt:null,participants:null,scaleOverride:'auto',confidence:'unverified',personalNote:'',sourceType:'manual'};
+$('editHeading').textContent=id?(e.sourceType==='manual'?'手動登録を編集':'公式イベントを本人補正'):'イベント新規登録';$('editSource').textContent=e?.sourceType!=='manual'&&id?'公式情報を直接変更せず、この端末に補正値を保存します。':'この端末の個人登録として保存されます。';$('editName').value=initial.title||'';$('editVenue').value=initial.venue||'';$('editDay').value=initial.date||jstDateKey();$('editEndDay').value=initial.endDate||'';$('editStart').value=initial.startAt?shortTime(initial.startAt):'';$('editEnd').value=initial.endAt?shortTime(initial.endAt):'';$('editCount').value=Number.isInteger(initial.participants)?initial.participants:'';$('editTier').value=initial.scaleOverride||'auto';$('editConfidence').value=initial.confidence||'unverified';$('editComment').value=initial.personalNote||'';$('editRestore').hidden=!id||e.sourceType==='manual'||!state.overrides[id];$('editRemove').hidden=!id||e.sourceType!=='manual';$('eventDialog').showModal();}
+function editorClose(){state.editingID=null;$('eventDialog').close()}
+function setupEventEditing(){ $('newManual').addEventListener('click',()=>editorOpen());$('editCancel').addEventListener('click',editorClose);document.addEventListener('click',e=>{
+ const b=e.target.closest('[data-edit-event]');if(b){editorOpen(b.dataset.editEvent);return;}
+ const prefill=e.target.closest('[data-prefill-event]');if(!prefill)return;
+ const ev=state.rows.find(x=>x.id===prefill.dataset.prefillEvent);if(!ev)return;
+ activate('events');const area=document.querySelector('#memoForm');area.closest('.more-section').open=true;
+ $('evType').value='event';$('evZone').value=ZONES.some(z=>z.id===ev.zone)?ev.zone:'station';$('evTitle').value=ev.title.slice(0,72);$('evLink').value=safeURL(ev.url);$('evNote').value='終了・退場時刻を必ず公式情報で確認してください。';$('evAt').value=toJstLocalInput(Date.parse(ev.endAt||ev.date+'T21:00:00+09:00'));
+ area.scrollIntoView({behavior:'smooth',block:'start'});
+});
+$('editForm').addEventListener('submit',e=>{e.preventDefault();const date=$('editDay').value,endDate=$('editEndDay').value||date,title=$('editName').value.trim(),venue=$('editVenue').value.trim(),count=$('editCount').value;
+if(!title||!venue||!/^20\d\d-\d\d-\d\d$/.test(date)||endDate<date)return alert('イベント名・会場・開催日をご確認ください。');if(count!==''&&(!Number.isInteger(+count)||+count<0||+count>100000))return alert('参加人数は0～100000人の整数で入力してください。');const change={title:title.slice(0,120),venue:venue.slice(0,160),date,endDate,startAt:toJstISOString(date,$('editStart').value),endAt:toJstISOString(endDate,$('editEnd').value),participants:count===''?null:+count,scaleOverride:$('editTier').value,confidence:$('editConfidence').value,personalNote:$('editComment').value.trim().slice(0,300)};if(change.startAt&&change.endAt&&Date.parse(change.endAt)<Date.parse(change.startAt))return alert('終了時刻が開始時刻より前です。');if(state.editingID){let original=state.rows.find(x=>x.id===state.editingID);if(!original)return;if(original.sourceType==='manual')state.manual=state.manual.map(x=>x.id===state.editingID?{...x,...change}:x);else state.overrides[state.editingID]=change;}else{if(state.manual.length>=150)return alert('手動登録は150件までです');const id='manual-'+(crypto.randomUUID?.()||Date.now());state.manual.push({...change,id,sourceType:'manual',zone:'station',url:'',note:'本人の手動登録',doorAt:null});}if(!persist())return;editorClose();recompute();});
+$('editRestore').addEventListener('click',()=>{if(!state.editingID||!confirm('本人補正を解除しますか？'))return;delete state.overrides[state.editingID];if(persist()){editorClose();recompute()}});
+$('editRemove').addEventListener('click',()=>{if(!state.editingID||!confirm('手動登録を削除しますか？'))return;state.manual=state.manual.filter(x=>x.id!==state.editingID);if(persist()){editorClose();recompute()}});
+$('exportFixes').addEventListener('click',()=>exportEdits(state));$('importFixes').addEventListener('click',()=>$('fixesFile').click());$('fixesFile').addEventListener('change',async e=>{try{const file=e.target.files?.[0];if(!file||file.size>300000)throw Error('サイズ');const parsed=importEdits(JSON.parse(await file.text()));if(!confirm('端末の現在の登録・補正をバックアップで置き換えますか？'))return;state.manual=parsed.manual;state.overrides=parsed.overrides;if(persist())recompute();}catch{alert('旧版の登録・補正バックアップを読めませんでした。')}finally{e.target.value='';}});
+}
+function setupMemos(){ $('evZone').innerHTML=ZONES.map(z=>`<option value="${esc(z.id)}">${esc(z.name)}</option>`).join('');$('evAt').value=toJstLocalInput(Date.now()+3600000);$('memoForm').addEventListener('submit',e=>{e.preventDefault();const title=$('evTitle').value.trim(),date=$('evAt').value,rawLink=$('evLink').value.trim();if(!title||!date)return alert('内容と日時を入力してください。');if(rawLink&&!safeURL(rawLink))return alert('URLはhttps://から始めてください。');const rec={id:state.memoEditingID||String(crypto.randomUUID?.()||Date.now()),type:$('evType').value,zone:$('evZone').value,title:title.slice(0,72),at:new Date(date).toISOString(),size:$('evSize').value,link:rawLink,note:$('evNote').value.slice(0,300)};if(state.memoEditingID)state.memos=state.memos.map(m=>m.id===state.memoEditingID?rec:m);else{if(state.memos.length>=120)return alert('メモは120件までです。');state.memos.push(rec);}if(persist()){state.memoEditingID=null;$('memoForm').reset();$('evAt').value=toJstLocalInput(Date.now()+3600000);renderMemos([...state.memos]);}});
+document.addEventListener('click',e=>{const edit=e.target.closest('[data-edit-memo]'),remove=e.target.closest('[data-delete-memo]');if(edit){const m=state.memos.find(x=>x.id===edit.dataset.editMemo);if(!m)return;state.memoEditingID=m.id;for(const [id,value] of [['evType',m.type],['evZone',m.zone],['evTitle',m.title],['evSize',m.size],['evLink',m.link||''],['evNote',m.note||'']])$(id).value=value;$('evAt').value=toJstLocalInput(m.at);$('memoForm').scrollIntoView({block:'start',behavior:'smooth'});}if(remove&&confirm('このメモを削除しますか？')){state.memos=state.memos.filter(x=>x.id!==remove.dataset.deleteMemo);if(persist())renderMemos([...state.memos]);}});
+$('exportEvents').addEventListener('click',()=>downloadJSON('takamatsu_taxi_memos_v01.json',{schema:1,memos:state.memos}));$('importEvents').addEventListener('click',()=>$('importFile').click());$('importFile').addEventListener('change',async e=>{try{const f=e.target.files?.[0];if(!f||f.size>200000)throw Error();const o=JSON.parse(await f.text());let rows=Array.isArray(o)?o:o?.memos;if(!Array.isArray(rows)||rows.length>120||rows.some(x=>typeof x.title!=='string'||typeof x.id!=='string'||!Number.isFinite(Date.parse(x.at))))throw Error();if(!confirm('現在のメモを読み込んだデータで置き換えますか？'))return;state.memos=rows;if(persist())renderMemos([...state.memos]);}catch{alert('メモファイルを読み込めませんでした。')}finally{e.target.value='';}});
+}
+function setupInstall(){if(document.documentElement.dataset.previewOnly==='single')return;let pending=null;const btn=$('installTop'),guide=$('installGuide');const standalone=()=>window.matchMedia('(display-mode:standalone)').matches||navigator.standalone===true;if(standalone())return;btn.hidden=false;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();pending=e;btn.hidden=false});window.addEventListener('appinstalled',()=>{btn.hidden=true;guide.hidden=true;pending=null});btn.addEventListener('click',async()=>{if(pending){pending.prompt();await pending.userChoice;pending=null;}else{guide.hidden=false;guide.textContent=/iPhone|iPad|iPod/.test(navigator.userAgent)?'Safariの共有ボタン→「ホーム画面に追加」を選択してください。':'ブラウザのメニューから「ホーム画面に追加」または「アプリをインストール」を選択してください。';}})}
+function init(){document.title='高松タクシー・シグナル '+APP_VERSION;setupTheme();updateClock();setInterval(updateClock,60000);renderSources();setupFilters();setupEventEditing();setupMemos();setupInstall();recompute();updateWeather();updateNowcast();updateTraffic();updateEvents();setInterval(()=>{if(!document.hidden){updateTraffic();updateNowcast()}},300000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){updateTraffic();if(Date.now()-state.nowcastLast>300000)updateNowcast()}});if(document.documentElement.dataset.previewOnly!=='single'&&'serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./sw.js').catch(console.warn);}
+init();
+
+</script>
+</body></html>
