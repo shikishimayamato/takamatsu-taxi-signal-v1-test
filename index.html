@@ -25,7 +25,6 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
 
 
 /* 個人情報登録：情報種別に合わせて入力項目を切り替える。 */
-.manual-register .manual-help{margin:2px 0 10px;color:var(--muted);font-size:14px;line-height:1.5}
 .manual-register #memoForm label{display:block;margin:9px 0;font-weight:700;font-size:15px}
 .manual-register #memoForm input,.manual-register #memoForm select,.manual-register #memoForm textarea{display:block;width:100%;min-width:0;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:9px 10px;margin-top:4px;min-height:46px;font-size:16px}
 .manual-register #memoForm textarea{min-height:85px}
@@ -41,7 +40,6 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
 .manual-register .memo-card small{font-size:13px;color:var(--muted)}
 .manual-register .memo-card .event-actions{margin-top:8px}
 
-.manual-time-note{font-size:13px;color:var(--muted);margin:4px 0 12px}
 .manual-register #evDayWrap[hidden]{display:none!important}
 .manual-register .zone-field{margin:9px 0}
 .manual-register .zone-field label{font-size:15px;font-weight:700;display:block}
@@ -98,6 +96,13 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
 .rain-popup-head strong{font-size:15px}
 .rain-popup-head button{border-radius:9px;min-height:36px;min-width:39px;padding:3px 8px;font-size:19px}
 .rain-popup #rainCloseTop{background:var(--accent);color:var(--accent-ink);font-weight:800;min-height:40px;font-size:14px;white-space:nowrap}
+
+/* スマホ：イベント／情報源／イベント更新を横一列で表示（タブと更新操作は独立） */
+.event-top-actions{display:flex;align-items:center;gap:6px;justify-content:space-between;flex-wrap:nowrap;min-width:0;margin:11px 0}
+.event-top-actions .tabs{display:flex;align-items:center;flex:0 1 auto;gap:6px;min-width:0;margin:0;flex-wrap:nowrap}
+.event-top-actions .tab{white-space:nowrap;flex:0 0 auto;font-size:clamp(14px,4vw,17px);padding:8px 10px;min-height:44px;line-height:1.4}
+.event-top-actions #refreshEvents{white-space:nowrap;word-break:keep-all;margin-left:auto;flex:0 0 auto;font-size:clamp(13px,3.7vw,16px);padding:8px 10px;min-height:44px;line-height:1.4}
+@media(max-width:340px){.event-top-actions{gap:4px}.event-top-actions .tabs{gap:4px}.event-top-actions .tab{padding:8px 8px}.event-top-actions #refreshEvents{padding:8px 7px}}
 </style>
 <title>高松タクシー・シグナル v1.0 試験版（単一HTML）</title>
 </head>
@@ -116,10 +121,9 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
   <div class="install-line"><button id="installTop" hidden>＋ ホームに追加</button><p id="installGuide" hidden></p></div>
   <section class="x-card" aria-label="Xでの交通確認"><div class="x-card-heading"><strong>Xで交通確認</strong></div><div class="x-links"><a href="https://x.com/KSBNews_5ch" target="_blank" rel="noopener noreferrer">📰 ニュース</a><a href="https://x.com/iHighwayShikoku" target="_blank" rel="noopener noreferrer">🛣️ 高速道路</a></div></section>
   <section class="traffic-card" aria-label="高松・坂出・瀬戸大橋・児島の道路情報"><div class="traffic-head"><strong>道路情報</strong><small id="trafficStamp"></small><button id="trafficRefresh">更新</button></div><p id="trafficStatus" role="status" aria-live="polite">交通情報を取得中…</p><details id="trafficDetails"><summary>場所・詳細</summary><ul id="trafficList"><li>取得結果を確認中です。</li></ul></details></section>
-  <nav class="tabs" aria-label="機能" role="tablist"><button class="tab" data-tab="events" aria-selected="true" role="tab">イベント</button><button class="tab" data-tab="sources" aria-selected="false" role="tab">情報源</button></nav>
+  <div class="event-top-actions"><nav class="tabs" aria-label="機能" role="tablist"><button class="tab" data-tab="events" aria-selected="true" role="tab">イベント</button><button class="tab" data-tab="sources" aria-selected="false" role="tab">情報源</button></nav><button id="refreshEvents" type="button">イベント更新</button></div>
 
   <section class="tabview" id="view-events" role="tabpanel">
-    <div class="toolbar"><button id="refreshEvents">イベント更新</button></div>
     <section class="event-filter">
       <div class="date-pills date-pills-four" aria-label="表示期間"><button data-range="today" aria-pressed="true">今日</button><button data-range="tomorrow" aria-pressed="false">明日</button><button data-range="week" aria-pressed="false">今後7日</button><button data-range="all" aria-pressed="false">すべて</button></div>
       <div class="filter-grid">
@@ -138,7 +142,6 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
     <details class="more-section manual-register" id="manualRegister">
       <summary>その他情報手動登録</summary>
       <div class="section-inside">
-        <p class="manual-help">イベント・道路・鉄道・船舶・航空便など、自分で確認した情報を登録します。内容はこの端末だけに保存され、ほかの人には公開されません。</p>
         <form id="memoForm">
           <label class="manual-select-label" for="typeChoose">情報の種類</label>
           <select id="evType" hidden aria-hidden="true" tabindex="-1" required>
@@ -160,11 +163,10 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
             <select id="evZone" hidden aria-hidden="true" tabindex="-1"></select>
             <button class="picker-trigger" type="button" id="zoneChoose" aria-haspopup="dialog" aria-controls="pickerDialog"><span id="zoneChosen">高松駅・サンポート</span><span aria-hidden="true">▾</span></button>
           </div>
-          <div id="evDayWrap"><label for="evDay">イベント開催日（開始・終了時刻が不明でも日付だけで登録可）
+          <div id="evDayWrap"><label for="evDay">イベント開催日
             <input id="evDay" type="date"></label></div>
           <label for="evEndAt"><span id="evEndAtLabel">終了日時（不明なら空欄）</span><input id="evEndAt" type="datetime-local"></label>
           <label for="evAt"><span id="evAtLabel">開始日時（不明なら空欄）</span><input id="evAt" type="datetime-local"></label>
-          <p class="manual-time-note">開始・終了の日時はどちらも空欄で登録できます。イベントは開催日だけ指定してください。</p>
           <div id="eventOnlyFields">
             <label for="evCount">参加予定人数（任意）<input id="evCount" type="number" min="0" max="100000" placeholder="不明なら空欄"></label>
             <label class="manual-select-label" for="sizeChoose">規模の目安</label>
@@ -181,7 +183,6 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
           <div class="manual-actions"><button id="saveManual" type="submit">この端末に登録</button><button id="cancelMemoEdit" type="button" hidden>編集を中止</button></div>
         </form>
         <div class="manual-saved-title">その他情報の登録履歴</div>
-        <p class="manual-help">手動登録したイベントは、上のイベント一覧で確認・編集できます。</p>
         <div id="memoList"></div>
 
       </div>
@@ -190,7 +191,6 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
 
   <section class="tabview" id="view-sources" role="tabpanel" hidden><div id="sourceAll" class="sourcegrid"></div><details class="more-section"><summary>自動取得の範囲と注意点</summary><p>天気は気象庁の予報をCloudflare Worker経由で取得します。強雨は気象庁雨雲画像から参考判定し、交通はTomTom情報から取得します。イベントはGitHub Actionsで公開データを収集します。規模区分は参考値で、タクシー需要を保証しません。施設のページ変更や通信障害で取得できないことがあります。</p></details></section>
 </main>
-<footer class="page footer">高松タクシー・シグナル v1.0 試験版｜運転中の操作禁止</footer>
 
 <!-- 会場・規模・対象地区で共通使用。Androidの全画面selectを使わない。 -->
 <dialog id="pickerDialog" class="picker-dialog" aria-labelledby="pickerTitle">
