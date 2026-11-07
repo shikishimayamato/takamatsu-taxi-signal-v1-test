@@ -1,0 +1,26 @@
+{
+  "id": "/takamatsu-taxi-signal-v1-test/",
+  "name": "高松タクシー・シグナル v1.0 試験版",
+  "short_name": "タクシーSignal v1",
+  "description": "高松周辺の天気・道路・イベント情報のv1.0試験版",
+  "start_url": "/takamatsu-taxi-signal-v1-test/",
+  "scope": "/takamatsu-taxi-signal-v1-test/",
+  "display": "standalone",
+  "background_color": "#f2f6f9",
+  "theme_color": "#f2f6f9",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "./signal-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./signal-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
