@@ -23,6 +23,23 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
 @media(max-width:470px){.page{padding:0 12px}.topinner{min-height:64px}.brand strong{font-size:17px}.brand-icon{flex-basis:36px;width:36px;height:36px}.clock{font-size:16px}.mode-button{font-size:14px;padding:5px 8px}.safety strong{font-size:17px}.weather-emoji{font-size:21px}.weather-summary strong{font-size:clamp(19px,5.6vw,23px)}.rain-label{padding:5px 2px}.rain-details summary{width:20px}.refresh-weather{width:46px;min-width:46px;font-size:14px}.weather-strip{grid-template-columns:minmax(0,1fr) max-content 46px;gap:3px}.tabs button{font-size:18px;padding:8px 10px}.event-card{padding:12px}.event-card h3{font-size:19px}.sourcegrid{grid-template-columns:1fr}.source{font-size:17px;min-height:58px}.filter-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:370px){.page{padding:0 9px}.brand strong{font-size:15px}.brand-icon{width:32px;flex-basis:32px;height:32px}.clock{font-size:14px}.weather-summary strong{font-size:18px}.rain-label{font-size:10px}.weather-emoji{font-size:18px}.weather-strip{grid-template-columns:minmax(0,1fr) max-content 42px}.refresh-weather{width:42px;min-width:42px;font-size:13px}.rain-details summary{width:18px}.safety strong{font-size:15px}.safety details summary{font-size:13px}.tab{font-size:16px!important}.date-pills button{font-size:15px}.date-pills-four button{font-size:13px}}
 
+
+/* 個人情報登録：情報種別に合わせて入力項目を切り替える。 */
+.manual-register .manual-help{margin:2px 0 10px;color:var(--muted);font-size:14px;line-height:1.5}
+.manual-register #memoForm label{display:block;margin:9px 0;font-weight:700;font-size:15px}
+.manual-register #memoForm input,.manual-register #memoForm select,.manual-register #memoForm textarea{display:block;width:100%;min-width:0;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:9px 10px;margin-top:4px;min-height:46px;font-size:16px}
+.manual-register #memoForm textarea{min-height:85px}
+.manual-register #eventOnlyFields[hidden],.manual-register #evConditionWrap[hidden],#cancelMemoEdit[hidden]{display:none!important}
+.manual-register .manual-actions{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.manual-register #saveManual{background:var(--accent);color:var(--accent-ink);font-size:17px;padding:9px 16px}
+.manual-saved-title{font-size:17px;font-weight:800;margin:17px 0 8px}
+.manual-data-tools{padding:10px 0;margin-top:8px;border-top:1px solid var(--line)}
+.manual-data-tools summary{cursor:pointer;font-size:14px;color:var(--muted);font-weight:700}
+.manual-data-tools .action-row{margin:9px 0}
+.manual-register #memoList{display:grid;gap:9px}
+.manual-register .memo-card strong{display:block;font-size:16px}
+.manual-register .memo-card small{font-size:13px;color:var(--muted)}
+.manual-register .memo-card .event-actions{margin-top:8px}
 </style>
 <title>高松タクシー・シグナル v1.0 試験版（単一HTML）</title>
 </head>
@@ -53,9 +70,55 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
       <details class="data-status"><summary>取得状況</summary><p id="eventsStatus">データを取得中…</p></details>
     </section>
     <div id="autoEventList" class="event-list"><p class="empty">イベント情報を取得中…</p></div><button id="eventMore" class="wide-button" hidden>さらに30件を表示</button>
-    <div class="edit-actions"><button id="newManual">＋ イベントを登録</button></div>
-    <details class="more-section"><summary>公開大会・本人登録・バックアップ</summary><div class="section-inside"><label class="inline-label">会場名・イベント名で検索<input id="convVenue" placeholder="クレメント、パールガーデンなど"></label><div id="convList"></div><button id="convMore">さらに表示</button><div class="action-row"><button id="exportFixes">登録・補正をバックアップ</button><button id="importFixes">バックアップを読み込み</button><input id="fixesFile" type="file" accept=".json,application/json" hidden></div></div></details>
-    <details class="more-section"><summary>交通・運行情報の個人メモ</summary><div class="section-inside"><form id="memoForm"><label>種類<select id="evType"><option value="event">イベント</option><option value="rail">鉄道</option><option value="flight">空港</option><option value="port">船舶</option><option value="road">道路</option><option value="other">その他</option></select></label><label>対象地区<select id="evZone"></select></label><label>内容<input id="evTitle" maxlength="72" required></label><label>発生・終了予定日時<input id="evAt" type="datetime-local" required></label><label>規模<select id="evSize"><option value="small">小・不明</option><option value="medium">中</option><option value="large">大</option></select></label><label>情報源URL（任意）<input id="evLink" type="url"></label><label>備考<textarea id="evNote" maxlength="300"></textarea></label><button type="submit">この端末にメモ</button></form><div id="memoList"></div><div class="action-row"><button id="exportEvents">メモを書き出し</button><button id="importEvents">メモを読み込み</button><input id="importFile" type="file" accept=".json,application/json" hidden></div></div></details>
+    <details class="more-section manual-register" id="manualRegister">
+      <summary>その他情報手動登録</summary>
+      <div class="section-inside">
+        <p class="manual-help">イベント・道路・鉄道・船舶・航空便など、自分で確認した情報を登録します。内容はこの端末だけに保存され、ほかの人には公開されません。</p>
+        <form id="memoForm">
+          <label for="evType">情報の種類
+            <select id="evType" required>
+              <option value="event">イベント・催事</option>
+              <option value="road">道路・交通規制</option>
+              <option value="rail">鉄道</option>
+              <option value="port">船舶・フェリー</option>
+              <option value="flight">航空便</option>
+              <option value="other">その他</option>
+            </select>
+          </label>
+          <label for="evTitle"><span id="evTitleLabel">イベント名</span>
+            <input id="evTitle" maxlength="72" required placeholder="例：市民ホールの公演">
+          </label>
+          <label for="evPlace"><span id="evPlaceLabel">会場名（必須）</span>
+            <input id="evPlace" maxlength="160" required placeholder="例：サンポートホール高松">
+          </label>
+          <label for="evZone">対象地区<select id="evZone"></select></label>
+          <label for="evAt"><span id="evAtLabel">開始日時</span>
+            <input id="evAt" type="datetime-local" required>
+          </label>
+          <div id="eventOnlyFields">
+            <label for="evEndAt">終了日時（未公表なら空欄）<input id="evEndAt" type="datetime-local"></label>
+            <label for="evCount">参加予定人数（任意）<input id="evCount" type="number" min="0" max="100000" placeholder="不明なら空欄"></label>
+            <label for="evSize">規模の目安
+              <select id="evSize"><option value="auto">自動判定・不明</option><option value="large">大規模</option><option value="medium">中規模</option><option value="small">小規模</option><option value="limited">関係者向け</option></select>
+            </label>
+          </div>
+          <label id="evConditionWrap" for="evCondition" hidden><span id="evConditionLabel">状況</span>
+            <select id="evCondition"></select>
+          </label>
+          <label for="evLink">情報源URL（任意）<input id="evLink" type="url" placeholder="https://..."></label>
+          <label for="evNote">備考・確認した内容（任意）<textarea id="evNote" maxlength="300" rows="3" placeholder="例：現地確認、規制解除は未確認"></textarea></label>
+          <div class="manual-actions"><button id="saveManual" type="submit">この端末に登録</button><button id="cancelMemoEdit" type="button" hidden>編集を中止</button></div>
+        </form>
+        <div class="manual-saved-title">その他情報の登録履歴</div>
+        <p class="manual-help">手動登録したイベントは、上のイベント一覧で確認・編集できます。</p>
+        <div id="memoList"></div>
+        <details class="manual-data-tools"><summary>データの保存・復元</summary>
+          <p class="manual-help">端末を変更する場合のため、個人イベントとその他情報をそれぞれ保存できます。</p>
+          <div class="action-row"><button id="exportFixes" type="button">個人イベントを保存</button><button id="importFixes" type="button">個人イベントを読み込み</button><input id="fixesFile" type="file" accept=".json,application/json" hidden></div>
+          <div class="action-row"><button id="exportEvents" type="button">その他情報を保存</button><button id="importEvents" type="button">その他情報を読み込み</button><input id="importFile" type="file" accept=".json,application/json" hidden></div>
+        </details>
+      </div>
+    </details>
   </section>
 
   <section class="tabview" id="view-sources" role="tabpanel" hidden><div id="sourceAll" class="sourcegrid"></div><details class="more-section"><summary>自動取得の範囲と注意点</summary><p>天気は気象庁の予報をCloudflare Worker経由で取得します。強雨は気象庁雨雲画像から参考判定し、交通はTomTom情報から取得します。イベントはGitHub Actionsで公開データを収集します。規模区分は参考値で、タクシー需要を保証しません。施設のページ変更や通信障害で取得できないことがあります。</p></details></section>
@@ -317,13 +380,13 @@ function renderEventList(rows,{range='week',venue='all',tier='all',limit=VENUE_L
   document.querySelectorAll('[data-range]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.range===range)));
   return{venue:current,filtered};
 }
-function renderConventionList(rows,{query='',limit=30}={}){
-  const normalized=query.normalize('NFKC').toLowerCase();const list=rows.filter(e=>['convention','manual'].includes(e.sourceType)&&(e.endDate||e.date)>=jstDateKey()).filter(e=>!normalized||(e.venue+' '+e.title).normalize('NFKC').toLowerCase().includes(normalized)).sort(eventSort);
-  $('convList').innerHTML=list.slice(0,limit).map(e=>eventCard(e)).join('')||'<p class="empty">該当する公開大会・本人登録イベントはありません。</p>';
-  $('convMore').hidden=list.length<=limit;
-}
 function renderMemos(rows){
-  $('memoList').innerHTML=rows.length?rows.sort((a,b)=>String(a.at).localeCompare(String(b.at))).map(m=>`<article class="memo-card"><strong>${esc(m.title)}</strong><p>${esc(m.at?new Date(m.at).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'}):'日時未登録')}</p>${m.note?`<p>${esc(m.note)}</p>`:''}<div class="event-actions"><button class="subbutton" data-edit-memo="${esc(m.id)}">編集</button><button class="subbutton" data-delete-memo="${esc(m.id)}">削除</button></div></article>`).join(''):'<p class="empty">まだメモはありません。</p>';
+  const category={event:'イベント・催事',road:'道路・交通規制',rail:'鉄道',port:'船舶・フェリー',flight:'航空便',other:'その他'};
+  const notes=rows.sort((a,b)=>String(a.at).localeCompare(String(b.at))).map(m=>{
+    const stamp=Number.isFinite(Date.parse(m.at))?new Date(m.at).toLocaleString('ja-JP',{timeZone:JST}):'日時未登録';
+    return `<article class="memo-card"><small>${esc(category[m.type]||'その他')} ／ ${esc(stamp)}</small><strong>${esc(m.title)}</strong>${m.place?`<p>場所：${esc(m.place)}</p>`:''}${m.condition?`<p>状況：${esc(m.condition)}</p>`:''}${m.note?`<p>${esc(m.note)}</p>`:''}<div class="event-actions"><button type="button" class="subbutton" data-edit-memo="${esc(m.id)}">編集</button><button type="button" class="subbutton" data-delete-memo="${esc(m.id)}">削除</button></div></article>`;
+  });
+  $('memoList').innerHTML=notes.join('')||'<p class="empty">道路・鉄道・船舶などの登録履歴はまだありません。</p>';
 }
 
 // --- app.js ---
@@ -338,12 +401,12 @@ function renderMemos(rows){
 
 const saved=readUserData();
 const state={official:[],rows:[],manual:saved.manual,overrides:saved.overrides,memos:saved.memos,
- focus:'today',range:'week',venue:'all',tier:'all',limit:30,convLimit:30,editingID:null,memoEditingID:null,
+ focus:'today',range:'week',venue:'all',tier:'all',limit:30,editingID:null,memoEditingID:null,
  statuses:[],updatedAt:null,weatherLoading:false,trafficLoading:false,trafficLast:0,eventLoading:false,nowcastLast:0};
 
 function persist(){const ok=saveUserData(state);if(!ok)alert('端末への保存に失敗しました。ブラウザの空き容量・設定をご確認ください。');return ok;}
 function recompute(){state.rows=combinedEvents(state.official,state.manual,state.overrides);render();}
-function render(){renderFocus(state.rows,state.focus);const result=renderEventList(state.rows,state);state.venue=result.venue;renderConventionList(state.rows,{query:$('convVenue').value,limit:state.convLimit});renderMemos([...state.memos]);}
+function render(){renderFocus(state.rows,state.focus);const result=renderEventList(state.rows,state);state.venue=result.venue;renderMemos([...state.memos]);}
 function updateClock(){ $('clock').textContent=jstClock();}
 function setupTheme(){const themeKey=document.documentElement.dataset.stage==='production'?STORAGE_KEYS.theme:'ts-v1-preview:'+STORAGE_KEYS.theme;const savedTheme=localStorage.getItem(themeKey)||localStorage.getItem(STORAGE_KEYS.theme);const fallback=window.matchMedia?.('(prefers-color-scheme:dark)').matches?'night':'day';function setTheme(v){document.documentElement.dataset.theme=v;$('themeToggle').textContent=v==='night'?'☀ 昼':'☾ 夜';document.querySelector('meta[name="theme-color"]').setAttribute('content',v==='night'?'#183547':'#f2f6f9')}setTheme(savedTheme==='night'||savedTheme==='day'?savedTheme:fallback);$('themeToggle').addEventListener('click',()=>{const t=document.documentElement.dataset.theme==='night'?'day':'night';setTheme(t);localStorage.setItem(themeKey,t)})}
 function activate(view){for(const button of document.querySelectorAll('.tabs button'))button.setAttribute('aria-selected',String(button.dataset.tab===view));for(const section of document.querySelectorAll('.tabview'))section.hidden=section.id!=='view-'+view;window.scrollTo({top:0,behavior:'instant'});}
@@ -357,16 +420,16 @@ catch(e){status.textContent='交通情報を取得できません。情報源タ
 async function updateEvents(){if(state.eventLoading)return;state.eventLoading=true;const btn=$('refreshEvents');btn.disabled=true;btn.textContent='更新中…';$('eventsStatus').textContent='公式データを取得中…';try{const data=await loadOfficialEvents(partial=>{state.official=partial.events;state.statuses=partial.sources;state.updatedAt=partial.updatedAt;recompute();});state.official=data.events;state.statuses=data.sources;state.updatedAt=data.updatedAt;recompute();const lines=data.sources.map(s=>`${s.name}: ${s.status}（${s.count}件）`);if(data.errors.length)lines.push('一部の情報源から取得できませんでした。');$('eventsStatus').textContent=lines.join('\n');}
 catch(e){$('eventsStatus').textContent='イベントデータ取得に失敗しました。'+e.message;console.warn('イベント',e)}finally{state.eventLoading=false;btn.disabled=false;btn.textContent='イベント更新';}}
 
-function setupFilters(){for(const btn of document.querySelectorAll('.tabs button'))btn.addEventListener('click',()=>activate(btn.dataset.tab));for(const b of document.querySelectorAll('[data-focus]'))b.addEventListener('click',()=>{state.focus=b.dataset.focus;renderFocus(state.rows,state.focus)});for(const b of document.querySelectorAll('[data-range]'))b.addEventListener('click',()=>{state.range=b.dataset.range;state.limit=30;render()});$('venueFilter').addEventListener('change',()=>{state.venue=$('venueFilter').value;state.limit=30;render()});$('tierFilter').addEventListener('change',()=>{state.tier=$('tierFilter').value;state.limit=30;render()});$('eventMore').addEventListener('click',()=>{state.limit+=30;render()});$('convVenue').addEventListener('input',()=>{state.convLimit=30;renderConventionList(state.rows,{query:$('convVenue').value,limit:state.convLimit})});$('convMore').addEventListener('click',()=>{state.convLimit+=30;renderConventionList(state.rows,{query:$('convVenue').value,limit:state.convLimit})});$('refreshWeather').addEventListener('click',()=>{updateWeather();updateNowcast()});$('trafficRefresh').addEventListener('click',()=>updateTraffic(true));$('refreshEvents').addEventListener('click',updateEvents);}
+function setupFilters(){for(const btn of document.querySelectorAll('.tabs button'))btn.addEventListener('click',()=>activate(btn.dataset.tab));for(const b of document.querySelectorAll('[data-focus]'))b.addEventListener('click',()=>{state.focus=b.dataset.focus;renderFocus(state.rows,state.focus)});for(const b of document.querySelectorAll('[data-range]'))b.addEventListener('click',()=>{state.range=b.dataset.range;state.limit=30;render()});$('venueFilter').addEventListener('change',()=>{state.venue=$('venueFilter').value;state.limit=30;render()});$('tierFilter').addEventListener('change',()=>{state.tier=$('tierFilter').value;state.limit=30;render()});$('eventMore').addEventListener('click',()=>{state.limit+=30;render()});$('refreshWeather').addEventListener('click',()=>{updateWeather();updateNowcast()});$('trafficRefresh').addEventListener('click',()=>updateTraffic(true));$('refreshEvents').addEventListener('click',updateEvents);}
 function editorOpen(id=null){const e=id?state.rows.find(x=>x.id===id):null;if(id&&!e)return;state.editingID=id;const initial=e||{title:'',venue:'',date:jstDateKey(),endDate:'',startAt:null,endAt:null,participants:null,scaleOverride:'auto',confidence:'unverified',personalNote:'',sourceType:'manual'};
 $('editHeading').textContent=id?(e.sourceType==='manual'?'手動登録を編集':'公式イベントを本人補正'):'イベント新規登録';$('editSource').textContent=e?.sourceType!=='manual'&&id?'公式情報を直接変更せず、この端末に補正値を保存します。':'この端末の個人登録として保存されます。';$('editName').value=initial.title||'';$('editVenue').value=initial.venue||'';$('editDay').value=initial.date||jstDateKey();$('editEndDay').value=initial.endDate||'';$('editStart').value=initial.startAt?shortTime(initial.startAt):'';$('editEnd').value=initial.endAt?shortTime(initial.endAt):'';$('editCount').value=Number.isInteger(initial.participants)?initial.participants:'';$('editTier').value=initial.scaleOverride||'auto';$('editConfidence').value=initial.confidence||'unverified';$('editComment').value=initial.personalNote||'';$('editRestore').hidden=!id||e.sourceType==='manual'||!state.overrides[id];$('editRemove').hidden=!id||e.sourceType!=='manual';$('eventDialog').showModal();}
 function editorClose(){state.editingID=null;$('eventDialog').close()}
-function setupEventEditing(){ $('newManual').addEventListener('click',()=>editorOpen());$('editCancel').addEventListener('click',editorClose);document.addEventListener('click',e=>{
+function setupEventEditing(){ $('editCancel').addEventListener('click',editorClose);document.addEventListener('click',e=>{
  const b=e.target.closest('[data-edit-event]');if(b){editorOpen(b.dataset.editEvent);return;}
  const prefill=e.target.closest('[data-prefill-event]');if(!prefill)return;
  const ev=state.rows.find(x=>x.id===prefill.dataset.prefillEvent);if(!ev)return;
  activate('events');const area=document.querySelector('#memoForm');area.closest('.more-section').open=true;
- $('evType').value='event';$('evZone').value=ZONES.some(z=>z.id===ev.zone)?ev.zone:'station';$('evTitle').value=ev.title.slice(0,72);$('evLink').value=safeURL(ev.url);$('evNote').value='終了・退場時刻を必ず公式情報で確認してください。';$('evAt').value=toJstLocalInput(Date.parse(ev.endAt||ev.date+'T21:00:00+09:00'));
+ $('evType').value='event';$('evType').dispatchEvent(new Event('change'));$('evZone').value=ZONES.some(z=>z.id===ev.zone)?ev.zone:'station';$('evTitle').value=ev.title.slice(0,72);$('evPlace').value=ev.venue||'';$('evLink').value=safeURL(ev.url);$('evNote').value='終了・退場時刻を必ず公式情報で確認してください。';$('evAt').value=toJstLocalInput(Date.parse(ev.endAt||ev.date+'T21:00:00+09:00'));$('evEndAt').value=ev.endAt?toJstLocalInput(Date.parse(ev.endAt)):'';
  area.scrollIntoView({behavior:'smooth',block:'start'});
 });
 $('editForm').addEventListener('submit',e=>{e.preventDefault();const date=$('editDay').value,endDate=$('editEndDay').value||date,title=$('editName').value.trim(),venue=$('editVenue').value.trim(),count=$('editCount').value;
@@ -375,10 +438,98 @@ $('editRestore').addEventListener('click',()=>{if(!state.editingID||!confirm('�
 $('editRemove').addEventListener('click',()=>{if(!state.editingID||!confirm('手動登録を削除しますか？'))return;state.manual=state.manual.filter(x=>x.id!==state.editingID);if(persist()){editorClose();recompute()}});
 $('exportFixes').addEventListener('click',()=>exportEdits(state));$('importFixes').addEventListener('click',()=>$('fixesFile').click());$('fixesFile').addEventListener('change',async e=>{try{const file=e.target.files?.[0];if(!file||file.size>300000)throw Error('サイズ');const parsed=importEdits(JSON.parse(await file.text()));if(!confirm('端末の現在の登録・補正をバックアップで置き換えますか？'))return;state.manual=parsed.manual;state.overrides=parsed.overrides;if(persist())recompute();}catch{alert('旧版の登録・補正バックアップを読めませんでした。')}finally{e.target.value='';}});
 }
-function setupMemos(){ $('evZone').innerHTML=ZONES.map(z=>`<option value="${esc(z.id)}">${esc(z.name)}</option>`).join('');$('evAt').value=toJstLocalInput(Date.now()+3600000);$('memoForm').addEventListener('submit',e=>{e.preventDefault();const title=$('evTitle').value.trim(),date=$('evAt').value,rawLink=$('evLink').value.trim();if(!title||!date)return alert('内容と日時を入力してください。');if(rawLink&&!safeURL(rawLink))return alert('URLはhttps://から始めてください。');const rec={id:state.memoEditingID||String(crypto.randomUUID?.()||Date.now()),type:$('evType').value,zone:$('evZone').value,title:title.slice(0,72),at:new Date(date).toISOString(),size:$('evSize').value,link:rawLink,note:$('evNote').value.slice(0,300)};if(state.memoEditingID)state.memos=state.memos.map(m=>m.id===state.memoEditingID?rec:m);else{if(state.memos.length>=120)return alert('メモは120件までです。');state.memos.push(rec);}if(persist()){state.memoEditingID=null;$('memoForm').reset();$('evAt').value=toJstLocalInput(Date.now()+3600000);renderMemos([...state.memos]);}});
-document.addEventListener('click',e=>{const edit=e.target.closest('[data-edit-memo]'),remove=e.target.closest('[data-delete-memo]');if(edit){const m=state.memos.find(x=>x.id===edit.dataset.editMemo);if(!m)return;state.memoEditingID=m.id;for(const [id,value] of [['evType',m.type],['evZone',m.zone],['evTitle',m.title],['evSize',m.size],['evLink',m.link||''],['evNote',m.note||'']])$(id).value=value;$('evAt').value=toJstLocalInput(m.at);$('memoForm').scrollIntoView({block:'start',behavior:'smooth'});}if(remove&&confirm('このメモを削除しますか？')){state.memos=state.memos.filter(x=>x.id!==remove.dataset.deleteMemo);if(persist())renderMemos([...state.memos]);}});
-$('exportEvents').addEventListener('click',()=>downloadJSON('takamatsu_taxi_memos_v01.json',{schema:1,memos:state.memos}));$('importEvents').addEventListener('click',()=>$('importFile').click());$('importFile').addEventListener('change',async e=>{try{const f=e.target.files?.[0];if(!f||f.size>200000)throw Error();const o=JSON.parse(await f.text());let rows=Array.isArray(o)?o:o?.memos;if(!Array.isArray(rows)||rows.length>120||rows.some(x=>typeof x.title!=='string'||typeof x.id!=='string'||!Number.isFinite(Date.parse(x.at))))throw Error();if(!confirm('現在のメモを読み込んだデータで置き換えますか？'))return;state.memos=rows;if(persist())renderMemos([...state.memos]);}catch{alert('メモファイルを読み込めませんでした。')}finally{e.target.value='';}});
+function setupMemos(){
+  const area=$('manualRegister'),form=$('memoForm'),kind=$('evType');
+  $('evZone').innerHTML=ZONES.map(z=>`<option value="${esc(z.id)}">${esc(z.name)}</option>`).join('');
+  const categories={
+    event:{label:'イベント名',example:'例：市民ホールでコンサート',place:'会場名（必須）',placeExample:'例：サンポートホール高松',time:'開始日時',states:[]},
+    road:{label:'道路・交通情報の内容',example:'例：国道11号で事故による車線規制',place:'道路名・区間（任意）',placeExample:'例：国道11号・上天神町付近',time:'発生・確認日時',states:['事故','渋滞','通行止め','工事','規制解除','その他']},
+    rail:{label:'鉄道の運行情報',example:'例：高松駅発の列車が遅延',place:'路線・駅名（任意）',placeExample:'例：予讃線・高松～坂出',time:'発生・確認日時',states:['遅延','運休','運転見合わせ','運転再開','混雑','その他']},
+    port:{label:'船舶・フェリーの運航情報',example:'例：高松～小豆島航路が欠航',place:'港・航路名（任意）',placeExample:'例：高松港～土庄港',time:'発生・確認日時',states:['欠航','遅延','運航再開','臨時便','混雑','その他']},
+    flight:{label:'航空便の情報',example:'例：羽田発の到着便が遅延',place:'空港・便名（任意）',placeExample:'例：高松空港・便名',time:'発生・確認日時',states:['遅延','欠航','到着','出発','振替','その他']},
+    other:{label:'情報の内容',example:'例：大型施設周辺で一時的な混雑',place:'場所（任意）',placeExample:'例：高松駅前',time:'発生・確認日時',states:[]}
+  };
+  function resetForm(){state.memoEditingID=null;form.reset();kind.value='event';$('evAt').value=toJstLocalInput(Date.now()+3600000);$('evEndAt').value='';$('cancelMemoEdit').hidden=true;$('saveManual').textContent='この端末に登録';syncFields();}
+  function syncFields(){
+    const c=categories[kind.value]||categories.other, isEvent=kind.value==='event';
+    $('evTitleLabel').textContent=c.label;$('evTitle').placeholder=c.example;
+    $('evPlaceLabel').textContent=c.place;$('evPlace').placeholder=c.placeExample;$('evPlace').required=isEvent;
+    $('evAtLabel').textContent=c.time;
+    $('eventOnlyFields').hidden=!isEvent;
+    const el=$('evCondition'),show=c.states.length>0;
+    $('evConditionWrap').hidden=!show;
+    const prev=el.value;
+    el.innerHTML='<option value="">選択してください（任意）</option>'+c.states.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');
+    if(c.states.includes(prev))el.value=prev;
+  }
+  kind.addEventListener('change',syncFields);
+  $('evAt').value=toJstLocalInput(Date.now()+3600000);
+  syncFields();
+  $('cancelMemoEdit').addEventListener('click',resetForm);
+  form.addEventListener('submit',e=>{
+    e.preventDefault();
+    const title=$('evTitle').value.trim(),place=$('evPlace').value.trim(),at=$('evAt').value,rawLink=$('evLink').value.trim(),note=$('evNote').value.trim().slice(0,300);
+    if(!title||!at)return alert('内容と日時を入力してください。');
+    if(rawLink&&!safeURL(rawLink))return alert('情報源URLは https:// で始めてください。');
+    if(kind.value==='event'){
+      if(!place)return alert('イベントの会場名を入力してください。');
+      if(state.manual.length>=150)return alert('手動登録イベントの上限は150件です。');
+      const end=$('evEndAt').value;
+      if(end && end<at)return alert('終了日時は開始日時以降にしてください。');
+      const count=$('evCount').value;
+      if(count && (!Number.isInteger(Number(count))||Number(count)<0||Number(count)>100000))return alert('参加予定人数は0～100000人で入力してください。');
+      const rec={
+        id:'manual-'+(crypto.randomUUID?.()||String(Date.now())),title:title.slice(0,72),venue:place.slice(0,160),date:at.slice(0,10),
+        endDate:end?end.slice(0,10):at.slice(0,10),
+        startAt:at+':00+09:00',endAt:end?end+':00+09:00':null,
+        participants:count===''?null:Number(count),scaleOverride:$('evSize').value,
+        confidence:'unverified',personalNote:note,sourceType:'manual',zone:$('evZone').value,
+        url:rawLink,note:'本人の手動登録',doorAt:null
+      };
+      state.manual.push(rec);
+      // 旧版から引き継いだ「イベントの個人メモ」を編集した場合は重複を残さない。
+      if(state.memoEditingID)state.memos=state.memos.filter(x=>x.id!==state.memoEditingID);
+    }else{
+      if(!state.memoEditingID&&state.memos.length>=120)return alert('その他情報の上限は120件です。');
+      const rec={id:state.memoEditingID||String(crypto.randomUUID?.()||Date.now()),
+        type:kind.value,zone:$('evZone').value,title:title.slice(0,72),
+        at:new Date(at).toISOString(),size:'small',link:rawLink,note,place:place.slice(0,160),condition:$('evCondition').value};
+      if(state.memoEditingID)state.memos=state.memos.map(x=>x.id===state.memoEditingID?rec:x);
+      else state.memos.push(rec);
+    }
+    if(!persist())return;
+    resetForm();recompute();
+  });
+  document.addEventListener('click',e=>{
+    const edit=e.target.closest('[data-edit-memo]'),remove=e.target.closest('[data-delete-memo]');
+    if(edit){
+      const m=state.memos.find(x=>x.id===edit.dataset.editMemo);if(!m)return;
+      state.memoEditingID=m.id;area.open=true;kind.value=categories[m.type]?m.type:'other';syncFields();
+      $('evZone').value=ZONES.some(z=>z.id===m.zone)?m.zone:'other';
+      $('evTitle').value=m.title||'';$('evPlace').value=m.place||'';$('evLink').value=m.link||'';$('evNote').value=m.note||'';
+      $('evAt').value=toJstLocalInput(m.at);$('evCondition').value=m.condition||'';
+      $('cancelMemoEdit').hidden=false;$('saveManual').textContent='変更を保存';
+      form.scrollIntoView({block:'start',behavior:'smooth'});
+      return;
+    }
+    if(remove&&confirm('この端末から登録情報を削除しますか？')){
+      state.memos=state.memos.filter(x=>x.id!==remove.dataset.deleteMemo);
+      if(persist())recompute();
+    }
+  });
+  $('exportEvents').addEventListener('click',()=>downloadJSON('takamatsu_taxi_memos_v01.json',{schema:1,memos:state.memos}));
+  $('importEvents').addEventListener('click',()=>$('importFile').click());
+  $('importFile').addEventListener('change',async e=>{
+    try{
+      const f=e.target.files?.[0];if(!f||f.size>200000)throw Error();
+      const o=JSON.parse(await f.text()),rows=Array.isArray(o)?o:o?.memos;
+      if(!Array.isArray(rows)||rows.length>120||rows.some(x=>typeof x.title!=='string'||typeof x.id!=='string'||!Number.isFinite(Date.parse(x.at))))throw Error();
+      if(!confirm('現在のその他情報を読み込んだデータで置き換えますか？'))return;
+      state.memos=rows;if(persist())recompute();
+    }catch{alert('その他情報のファイルを読み込めませんでした。')}finally{e.target.value='';}
+  });
 }
+
 function setupInstall(){if(document.documentElement.dataset.previewOnly==='single')return;let pending=null;const btn=$('installTop'),guide=$('installGuide');const standalone=()=>window.matchMedia('(display-mode:standalone)').matches||navigator.standalone===true;if(standalone())return;btn.hidden=false;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();pending=e;btn.hidden=false});window.addEventListener('appinstalled',()=>{btn.hidden=true;guide.hidden=true;pending=null});btn.addEventListener('click',async()=>{if(pending){pending.prompt();await pending.userChoice;pending=null;}else{guide.hidden=false;guide.textContent=/iPhone|iPad|iPod/.test(navigator.userAgent)?'Safariの共有ボタン→「ホーム画面に追加」を選択してください。':'ブラウザのメニューから「ホーム画面に追加」または「アプリをインストール」を選択してください。';}})}
 function init(){document.title='高松タクシー・シグナル '+APP_VERSION;setupTheme();updateClock();setInterval(updateClock,60000);renderSources();setupFilters();setupEventEditing();setupMemos();setupInstall();recompute();updateWeather();updateNowcast();updateTraffic();updateEvents();setInterval(()=>{if(!document.hidden){updateTraffic();updateNowcast()}},300000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){updateTraffic();if(Date.now()-state.nowcastLast>300000)updateNowcast()}});if(document.documentElement.dataset.previewOnly!=='single'&&'serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./sw.js').catch(console.warn);}
 init();
