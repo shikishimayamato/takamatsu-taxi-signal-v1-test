@@ -116,14 +116,12 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
   <div class="install-line"><button id="installTop" hidden>＋ ホームに追加</button><p id="installGuide" hidden></p></div>
   <section class="x-card" aria-label="Xでの交通確認"><div class="x-card-heading"><strong>Xで交通確認</strong></div><div class="x-links"><a href="https://x.com/KSBNews_5ch" target="_blank" rel="noopener noreferrer">📰 ニュース</a><a href="https://x.com/iHighwayShikoku" target="_blank" rel="noopener noreferrer">🛣️ 高速道路</a></div></section>
   <section class="traffic-card" aria-label="高松・坂出・瀬戸大橋・児島の道路情報"><div class="traffic-head"><strong>道路情報</strong><small id="trafficStamp"></small><button id="trafficRefresh">更新</button></div><p id="trafficStatus" role="status" aria-live="polite">交通情報を取得中…</p><details id="trafficDetails"><summary>場所・詳細</summary><ul id="trafficList"><li>取得結果を確認中です。</li></ul></details></section>
-  <nav class="tabs" aria-label="機能" role="tablist"><button class="tab" data-tab="dash" aria-selected="true" role="tab">今日</button><button class="tab" data-tab="events" aria-selected="false" role="tab">イベント</button><button class="tab" data-tab="sources" aria-selected="false" role="tab">情報源</button></nav>
+  <nav class="tabs" aria-label="機能" role="tablist"><button class="tab" data-tab="events" aria-selected="true" role="tab">イベント</button><button class="tab" data-tab="sources" aria-selected="false" role="tab">情報源</button></nav>
 
-  <section class="tabview" id="view-dash" role="tabpanel"><div class="date-pills" aria-label="注目イベントの期間"><button data-focus="today" aria-pressed="true">今日</button><button data-focus="tomorrow" aria-pressed="false">明日</button><button data-focus="week" aria-pressed="false">今後7日</button></div><div id="focusCards" class="event-list"><p class="empty">イベント情報を取得中…</p></div></section>
-
-  <section class="tabview" id="view-events" role="tabpanel" hidden>
+  <section class="tabview" id="view-events" role="tabpanel">
     <div class="toolbar"><button id="refreshEvents">イベント更新</button></div>
     <section class="event-filter">
-      <div class="date-pills date-pills-four" aria-label="表示期間"><button data-range="today" aria-pressed="false">今日</button><button data-range="tomorrow" aria-pressed="false">明日</button><button data-range="week" aria-pressed="true">今後7日</button><button data-range="all" aria-pressed="false">すべて</button></div>
+      <div class="date-pills date-pills-four" aria-label="表示期間"><button data-range="today" aria-pressed="true">今日</button><button data-range="tomorrow" aria-pressed="false">明日</button><button data-range="week" aria-pressed="false">今後7日</button><button data-range="all" aria-pressed="false">すべて</button></div>
       <div class="filter-grid">
         <div class="picker-field">
           <select id="venueFilter" hidden aria-hidden="true" tabindex="-1"><option value="all">すべての会場</option></select>
@@ -382,11 +380,6 @@ function scaleEstimate(e){
   if(/大ホール/.test(note))return{key:'medium',label:labels.medium,reason:'会場の種類による参考分類'};
   return{key:'unknown',label:labels.unknown,reason:'推定に必要な情報が不足'};
 }
-function focusEvents(rows,range,now=jstDateKey()){
-  return periodEvents(rows,range,now).filter(e=>e.date!==now||!e.endAt||Date.parse(e.endAt)+30*60000>=Date.now()).sort((a,b)=>{
-    const order={large:0,medium:1,small:2,unknown:3,limited:4};return a.date.localeCompare(b.date)||(order[scaleEstimate(a).key]-order[scaleEstimate(b).key])||eventSort(a,b)
-  }).slice(0,4);
-}
 
 // --- weather.js ---
 
@@ -445,7 +438,6 @@ function eventCard(e,{compact=false}={}){
   const extras=compact?'':`<div class="event-detail">${e.note?`<details><summary>出典・注意事項</summary><p>${esc(e.note)}</p></details>`:''}<div class="event-actions">${safe?`<a class="subbutton" href="${esc(safe)}" rel="noopener noreferrer" target="_blank">公式詳細</a>`:''}<button class="subbutton" data-edit-event="${esc(e.id)}">${e.sourceType==='manual'?'編集':'この端末で補正'}</button></div></div>`;
   return `<article class="event-card" data-tier="${esc(size.key)}"><div class="event-lead"><span class="size-mark ${esc(size.key)}" title="${esc(size.reason)}">${esc(size.label)}</span><strong class="event-date">${day}</strong></div><div class="event-venue"><span aria-hidden="true">${venueIcon(e.venue)}</span> ${esc(e.venue)}${venueDetails}</div><div class="event-times">${e.doorAt?`<span class="time-chip">開場 ${esc(shortTime(e.doorAt))}</span>`:''}${start}${end}</div><h3>${esc((e.sourceType==='gym'?e.title.replace(/^\([月火水木金土日]\)\s*/,''):e.title))}</h3>${e.wasEdited?'<span class="tiny-tag">本人補正</span>':''}${e.sourceType==='manual'?'<span class="tiny-tag">手動登録</span>':''}${Number.isInteger(e.participants)?`<p class="event-attendance">参加予定 ${e.participants.toLocaleString('ja-JP')}人</p>`:''}${timeWatch}${extras}</article>`;
 }
-function renderFocus(rows,range){const list=focusEvents(rows,range);$('focusCards').innerHTML=list.map(e=>eventCard(e,{compact:true})).join('')||'<p class="empty">この期間のイベントは見つかりません。</p>';document.querySelectorAll('[data-focus]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.focus===range)))}
 function renderEventList(rows,{range='week',venue='all',tier='all',limit=VENUE_LIMIT}={}){
   const select=$('venueFilter'),available=venueOptions(rows);const current=venue==='all'||available.includes(venue)?venue:'all';
   const oldOptions=[...select.options].map(o=>o.value);const options=['all',...available];
@@ -482,12 +474,12 @@ function renderMemos(rows){
 
 const saved=readUserData();
 const state={official:[],rows:[],manual:saved.manual,overrides:saved.overrides,memos:saved.memos,
- focus:'today',range:'week',venue:'all',tier:'all',limit:30,editingID:null,memoEditingID:null,
+ range:'today',venue:'all',tier:'all',limit:30,editingID:null,memoEditingID:null,
  statuses:[],updatedAt:null,weatherLoading:false,trafficLoading:false,trafficLast:0,eventLoading:false,nowcastLast:0};
 
 function persist(){const ok=saveUserData(state);if(!ok)alert('端末への保存に失敗しました。ブラウザの空き容量・設定をご確認ください。');return ok;}
 function recompute(){state.rows=combinedEvents(state.official,state.manual,state.overrides);render();}
-function render(){renderFocus(state.rows,state.focus);const result=renderEventList(state.rows,state);state.venue=result.venue;syncPickerLabels();renderMemos([...state.memos]);}
+function render(){const result=renderEventList(state.rows,state);state.venue=result.venue;syncPickerLabels();renderMemos([...state.memos]);}
 function updateClock(){ $('clock').textContent=jstClock();}
 function setupTheme(){const themeKey=document.documentElement.dataset.stage==='production'?STORAGE_KEYS.theme:'ts-v1-preview:'+STORAGE_KEYS.theme;const savedTheme=localStorage.getItem(themeKey)||localStorage.getItem(STORAGE_KEYS.theme);const fallback=window.matchMedia?.('(prefers-color-scheme:dark)').matches?'night':'day';function setTheme(v){document.documentElement.dataset.theme=v;$('themeToggle').textContent=v==='night'?'☀ 昼':'☾ 夜';document.querySelector('meta[name="theme-color"]').setAttribute('content',v==='night'?'#183547':'#f2f6f9')}setTheme(savedTheme==='night'||savedTheme==='day'?savedTheme:fallback);$('themeToggle').addEventListener('click',()=>{const t=document.documentElement.dataset.theme==='night'?'day':'night';setTheme(t);localStorage.setItem(themeKey,t)})}
 function activate(view){for(const button of document.querySelectorAll('.tabs button'))button.setAttribute('aria-selected',String(button.dataset.tab===view));for(const section of document.querySelectorAll('.tabview'))section.hidden=section.id!=='view-'+view;window.scrollTo({top:0,behavior:'instant'});}
@@ -566,7 +558,7 @@ function setupPickers(){
   });
   syncPickerLabels();
 }
-function setupFilters(){for(const btn of document.querySelectorAll('.tabs button'))btn.addEventListener('click',()=>activate(btn.dataset.tab));for(const b of document.querySelectorAll('[data-focus]'))b.addEventListener('click',()=>{state.focus=b.dataset.focus;renderFocus(state.rows,state.focus)});for(const b of document.querySelectorAll('[data-range]'))b.addEventListener('click',()=>{state.range=b.dataset.range;state.limit=30;render()});$('venueFilter').addEventListener('change',()=>{state.venue=$('venueFilter').value;state.limit=30;render()});$('tierFilter').addEventListener('change',()=>{state.tier=$('tierFilter').value;state.limit=30;render()});$('eventMore').addEventListener('click',()=>{state.limit+=30;render()});$('refreshWeather').addEventListener('click',()=>{updateWeather();updateNowcast()});$('trafficRefresh').addEventListener('click',()=>updateTraffic(true));$('refreshEvents').addEventListener('click',updateEvents);}
+function setupFilters(){for(const btn of document.querySelectorAll('.tabs button'))btn.addEventListener('click',()=>activate(btn.dataset.tab));for(const b of document.querySelectorAll('[data-range]'))b.addEventListener('click',()=>{state.range=b.dataset.range;state.limit=30;render()});$('venueFilter').addEventListener('change',()=>{state.venue=$('venueFilter').value;state.limit=30;render()});$('tierFilter').addEventListener('change',()=>{state.tier=$('tierFilter').value;state.limit=30;render()});$('eventMore').addEventListener('click',()=>{state.limit+=30;render()});$('refreshWeather').addEventListener('click',()=>{updateWeather();updateNowcast()});$('trafficRefresh').addEventListener('click',()=>updateTraffic(true));$('refreshEvents').addEventListener('click',updateEvents);}
 function editorOpen(id=null){const e=id?state.rows.find(x=>x.id===id):null;if(id&&!e)return;state.editingID=id;const initial=e||{title:'',venue:'',date:jstDateKey(),endDate:'',startAt:null,endAt:null,participants:null,scaleOverride:'auto',confidence:'unverified',personalNote:'',sourceType:'manual'};
 $('editHeading').textContent=id?(e.sourceType==='manual'?'手動登録を編集':'公式イベントを本人補正'):'イベント新規登録';$('editSource').textContent=e?.sourceType!=='manual'&&id?'公式情報を直接変更せず、この端末に補正値を保存します。':'この端末の個人登録として保存されます。';$('editName').value=initial.title||'';$('editVenue').value=initial.venue||'';$('editDay').value=initial.date||jstDateKey();$('editEndDay').value=initial.endDate||'';$('editStart').value=initial.startAt?shortTime(initial.startAt):'';$('editEnd').value=initial.endAt?shortTime(initial.endAt):'';$('editCount').value=Number.isInteger(initial.participants)?initial.participants:'';$('editTier').value=initial.scaleOverride||'auto';$('editConfidence').value=initial.confidence||'unverified';$('editComment').value=initial.personalNote||'';syncPickerLabels();$('editRestore').hidden=!id||e.sourceType==='manual'||!state.overrides[id];$('editRemove').hidden=!id||e.sourceType!=='manual';$('eventDialog').showModal();}
 function editorClose(){state.editingID=null;$('eventDialog').close()}
