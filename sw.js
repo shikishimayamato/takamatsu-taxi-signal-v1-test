@@ -2,7 +2,7 @@
  * 旧版とは別スコープ /takamatsu-taxi-signal-v1-test/ のみ制御する。
  * 外部の気象/交通APIやイベントデータはキャッシュしない。
  */
-const CACHE = 'takamatsu-signal-v1-test-pwa-20261107-6';
+const CACHE = 'takamatsu-signal-v1-test-pwa-20261107-7';
 const CORE = ['./','./index.html','./manifest.webmanifest','./signal-192.png','./signal-512.png'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting()));

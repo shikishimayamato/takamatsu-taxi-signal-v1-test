@@ -49,12 +49,11 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
 .zone-dialog{padding:15px;width:min(530px,calc(100vw - 22px));max-height:86dvh;overflow-y:auto}
 .zone-dialog .zone-dialog-head{display:flex;justify-content:space-between;align-items:center;gap:12px;position:sticky;top:-15px;background:var(--surface);padding:10px 0;z-index:2;border-bottom:1px solid var(--line)}
 .zone-dialog .zone-dialog-head h2{font-size:19px;margin:0}
-.zone-dialog #zoneBack,.zone-dialog .zone-back-bottom{background:var(--accent);color:var(--accent-ink);min-width:90px;font-weight:800}
+.zone-dialog #zoneBack{background:var(--accent);color:var(--accent-ink);min-width:90px;font-weight:800}
 .zone-dialog .zone-choices{display:grid;gap:8px;margin:12px 0}
 .zone-dialog .zone-choices button{width:100%;text-align:left;min-height:51px;font-size:17px;padding:12px}
 .zone-dialog .zone-choices button[aria-pressed="true"]{border:2px solid var(--accent);background:var(--surface2)}
 .zone-dialog .zone-dialog-note{font-size:13px;color:var(--muted);margin:8px 0}
-.zone-dialog .zone-back-bottom{width:100%}
 
 /* v1.0: 全選択欄を、戻る/閉じる付きの同じ選択UIへ統一する */
 #evZone[hidden],#venueFilter[hidden],#tierFilter[hidden]{display:none!important;position:absolute!important;visibility:hidden!important;pointer-events:none!important}
@@ -76,18 +75,16 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
 }
 .picker-dialog[open]{display:flex;flex-direction:column}
 .picker-dialog::backdrop{background:#03172588}
-.picker-header{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:7px;flex:none;padding:10px 9px;background:var(--surface);border-bottom:1px solid var(--line)}
-.picker-header h2{font-size:17px;line-height:1.2;margin:0;overflow-wrap:anywhere;text-align:center}
-.picker-header button,.picker-footer button{min-height:45px;border-radius:12px;font-size:16px;font-weight:850;padding:8px 12px;white-space:nowrap}
-.picker-back{background:var(--accent);color:var(--accent-ink)}
+.picker-header{display:grid;grid-template-columns:minmax(74px,1fr) auto minmax(74px,1fr);align-items:center;gap:7px;flex:none;padding:10px 9px;background:var(--surface);border-bottom:1px solid var(--line)}
+.picker-header h2{font-size:17px;line-height:1.2;margin:0;overflow-wrap:anywhere;text-align:center;grid-column:2}
+.picker-header button{min-height:45px;border-radius:12px;font-size:16px;font-weight:850;padding:8px 12px;white-space:nowrap}
+.picker-back{background:var(--accent);color:var(--accent-ink);grid-column:1;justify-self:start}
 .picker-choices{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
 .picker-option{display:flex;width:100%;min-height:70px;align-items:center;justify-content:space-between;gap:15px;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:17px 18px;background:var(--surface);color:var(--ink);text-align:left;font-size:19px;line-height:1.4;font-weight:730;white-space:normal;overflow-wrap:anywhere}
 .picker-option:active{background:var(--surface2)}
 .picker-radio{flex:none;width:25px;height:25px;border:2px solid var(--muted);border-radius:50%;position:relative}
 .picker-option[aria-checked="true"] .picker-radio{border-color:var(--accent);border-width:3px}
 .picker-option[aria-checked="true"] .picker-radio::after{content:"";width:11px;height:11px;background:var(--accent);border-radius:50%;position:absolute;top:4px;left:4px}
-.picker-footer{flex:none;background:var(--surface);border-top:1px solid var(--line);padding:8px 12px;display:flex;justify-content:center}
-.picker-footer button{min-width:170px}
 @media (max-width:370px){.picker-header h2{font-size:15px}.picker-header button{font-size:14px;padding:8px}.picker-option{font-size:18px;min-height:67px}}
 
 /* イベント検索の選択欄：枠内に見出しだけ。全てのプルダウンを共通画面で選択。 */
@@ -100,7 +97,7 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
 .rain-popup-head{display:flex;align-items:center;justify-content:space-between;gap:9px;border-bottom:1px solid var(--line);padding-bottom:6px}
 .rain-popup-head strong{font-size:15px}
 .rain-popup-head button{border-radius:9px;min-height:36px;min-width:39px;padding:3px 8px;font-size:19px}
-.rain-popup #rainBack{background:var(--accent);color:var(--accent-ink);font-weight:800;min-height:44px;font-size:15px;margin-top:4px}
+.rain-popup #rainCloseTop{background:var(--accent);color:var(--accent-ink);font-weight:800;min-height:40px;font-size:14px;white-space:nowrap}
 </style>
 <title>高松タクシー・シグナル v1.0 試験版（単一HTML）</title>
 </head>
@@ -113,11 +110,11 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
   <section class="safety" aria-label="安全上の注意"><strong>運転中は操作禁止</strong><details><summary>注意事項</summary><p>運転を停止した安全な場所で操作してください。予報・交通・催事情報は参考情報です。駐停車や営業区域の規制を遵守し、最新情報を公式サイトで確認してください。</p></details></section>
   <section class="weather-strip" aria-label="気象庁の天気と強雨情報">
     <a class="weather-summary" href="https://www.jma.go.jp/bosai/forecast/#area_type=offices&area_code=370000" target="_blank" rel="noopener noreferrer" title="香川県の天気予報"><span id="wxEmoji" class="weather-emoji" aria-label="天気取得中">—</span><strong id="wxMain">取得中…</strong></a>
-    <div class="rain-status" id="rainBox"><span id="rainAlert" class="rain-label">強雨確認中</span><details class="rain-details"><summary aria-label="強雨の詳細">▼</summary><div class="rain-popup"><div class="rain-popup-head"><strong>強雨の詳細</strong><button type="button" id="rainCloseTop" aria-label="強雨の詳細を閉じる">✕</button></div><span id="rainDetail">気象庁の雨雲情報を確認中です。</span><a target="_blank" rel="noopener noreferrer" href="https://www.jma.go.jp/bosai/nowc/#zoom:9/lat:34.34/lon:134.05/colordepth:normal/elements:hrpns&slmcs">雨雲の動き</a><span>高松中心部と約6km圏の参考判定です。</span><button type="button" id="rainBack">← 戻る</button></div></details></div>
+    <div class="rain-status" id="rainBox"><span id="rainAlert" class="rain-label">強雨確認中</span><details class="rain-details"><summary aria-label="強雨の詳細">▼</summary><div class="rain-popup"><div class="rain-popup-head"><strong>強雨の詳細</strong><button type="button" id="rainCloseTop" aria-label="強雨の詳細を閉じる">← 戻る</button></div><span id="rainDetail">気象庁の雨雲情報を確認中です。</span><a target="_blank" rel="noopener noreferrer" href="https://www.jma.go.jp/bosai/nowc/#zoom:9/lat:34.34/lon:134.05/colordepth:normal/elements:hrpns&slmcs">雨雲の動き</a><span>高松中心部と約6km圏の参考判定です。</span></div></details></div>
     <button id="refreshWeather" class="refresh-weather" type="button">更新</button>
   </section>
   <div class="install-line"><button id="installTop" hidden>＋ ホームに追加</button><p id="installGuide" hidden></p></div>
-  <section class="x-card" aria-label="Xでの交通確認"><div class="x-card-heading"><strong>Xで交通確認</strong><details><summary>戻り方</summary><p>リンク先から戻れない場合はスマホの戻るボタンを押すか、このアプリを再度開いてください。</p></details></div><div class="x-links"><a href="https://x.com/KSBNews_5ch" target="_blank" rel="noopener noreferrer">📰 ニュース</a><a href="https://x.com/iHighwayShikoku" target="_blank" rel="noopener noreferrer">🛣️ 高速道路</a></div></section>
+  <section class="x-card" aria-label="Xでの交通確認"><div class="x-card-heading"><strong>Xで交通確認</strong></div><div class="x-links"><a href="https://x.com/KSBNews_5ch" target="_blank" rel="noopener noreferrer">📰 ニュース</a><a href="https://x.com/iHighwayShikoku" target="_blank" rel="noopener noreferrer">🛣️ 高速道路</a></div></section>
   <section class="traffic-card" aria-label="高松・坂出・瀬戸大橋・児島の道路情報"><div class="traffic-head"><strong>道路情報</strong><small id="trafficStamp"></small><button id="trafficRefresh">更新</button></div><p id="trafficStatus" role="status" aria-live="polite">交通情報を取得中…</p><details id="trafficDetails"><summary>場所・詳細</summary><ul id="trafficList"><li>取得結果を確認中です。</li></ul></details></section>
   <nav class="tabs" aria-label="機能" role="tablist"><button class="tab" data-tab="dash" aria-selected="true" role="tab">今日</button><button class="tab" data-tab="events" aria-selected="false" role="tab">イベント</button><button class="tab" data-tab="sources" aria-selected="false" role="tab">情報源</button></nav>
 
@@ -202,10 +199,8 @@ dialog{color:var(--ink);background:var(--surface);border:2px solid var(--line);b
   <div class="picker-header">
     <button type="button" id="pickerBack" class="picker-back">← 戻る</button>
     <h2 id="pickerTitle">項目を選択</h2>
-    <button type="button" id="pickerClose" class="picker-close" aria-label="選択画面を閉じる">✕</button>
   </div>
   <div id="pickerChoices" class="picker-choices" role="group" aria-label="選択肢"></div>
-  <div class="picker-footer"><button type="button" id="pickerBackBottom" class="picker-back">← 戻る</button></div>
 </dialog>
 <dialog id="eventDialog"><form id="editForm" method="dialog"><h2 id="editHeading">イベント登録</h2><p id="editSource"></p><label>イベント名<input id="editName" maxlength="120" required></label><label>会場<input id="editVenue" maxlength="160" required></label><div class="form-grid"><label>開始日<input id="editDay" type="date" required></label><label>終了日<input id="editEndDay" type="date"></label><label>開始時間<input id="editStart" type="time"></label><label>終了時間<input id="editEnd" type="time"></label></div><label>参加予定人数（任意）<input id="editCount" type="number" min="0" max="100000"></label><label for="editTierChoose">規模</label><select id="editTier" hidden aria-hidden="true" tabindex="-1"><option value="auto">自動判定</option><option value="large">大規模</option><option value="medium">中規模</option><option value="small">小規模</option><option value="limited">関係者向け</option><option value="unknown">規模不明</option></select><button id="editTierChoose" class="picker-trigger" type="button" aria-haspopup="dialog" aria-controls="pickerDialog"><span id="editTierChosen">自動判定</span><span aria-hidden="true">▾</span></button><label for="editConfidenceChoose">確認状況</label><select id="editConfidence" hidden aria-hidden="true" tabindex="-1"><option value="unverified">未確認</option><option value="confirmed">本人確認済み</option></select><button id="editConfidenceChoose" class="picker-trigger" type="button" aria-haspopup="dialog" aria-controls="pickerDialog"><span id="editConfidenceChosen">未確認</span><span aria-hidden="true">▾</span></button><label>自分用メモ<textarea id="editComment" maxlength="300"></textarea></label><div class="dialog-actions"><button type="button" id="editCancel">戻る</button><button type="button" id="editRestore" hidden>補正を解除</button><button type="button" id="editRemove" hidden>削除</button><button type="submit" id="editSave">保存</button></div></form></dialog>
 <script>
@@ -561,7 +556,7 @@ function setupPickers(){
     syncPickerLabels();
     closePicker();
   });
-  for(const id of ['pickerBack','pickerClose','pickerBackBottom']){
+  for(const id of ['pickerBack']){
     $(id).addEventListener('click',closePicker);
   }
   dialog.addEventListener('close',()=>{
@@ -684,7 +679,7 @@ function setupInstall(){if(document.documentElement.dataset.previewOnly==='singl
 function setupRainClose(){
   const details=document.querySelector('.rain-details');
   if(!details)return;
-  for(const id of ['rainCloseTop','rainBack'])$(id)?.addEventListener('click',()=>{details.open=false;details.querySelector('summary')?.focus({preventScroll:true});});
+  for(const id of ['rainCloseTop'])$(id)?.addEventListener('click',()=>{details.open=false;details.querySelector('summary')?.focus({preventScroll:true});});
   document.addEventListener('pointerdown',event=>{
     if(details.open && !details.contains(event.target))details.open=false;
   });
